@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Community | Strange World</title>
+    
+    <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --orange: #ff4500;
+            --cyan: #00e5ff;
+            --dark: #020202;
+            --card: #0a0a0a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        
+        body {
+            background-color: var(--dark);
+            color: #ffffff;
+            font-family: 'Rubik', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- NAVIGATION --- */
+        header {
+            padding: 20px 8%; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.98); border-bottom: 4px solid var(--orange);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo-text { font-family: 'Lilita One', cursive; font-size: 2rem; text-shadow: 3px 3px 0 var(--orange); }
+
+        nav a {
+            font-family: 'Lilita One', cursive; color: #fff; text-decoration: none;
+            margin-left: 25px; font-size: 1.1rem; text-transform: uppercase; transition: 0.3s;
+        }
+        nav a:hover, .active { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+
+        /* --- COMMUNITY CONTENT --- */
+        .container { padding: 60px 8%; max-width: 900px; margin: 0 auto; text-align: center; }
+
+        .comm-header h1 { 
+            font-family: 'Lilita One', cursive; font-size: 4rem; 
+            text-shadow: 6px 6px 0 var(--orange); margin-bottom: 10px;
+        }
+
+        /* Registro de Usuario */
+        .user-gate {
+            background: var(--card); border: 2px solid #1a1a1a;
+            padding: 40px; border-radius: 30px; margin-top: 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .user-gate h2 { font-family: 'Lilita One'; font-size: 2rem; color: var(--cyan); margin-bottom: 20px; }
+
+        input[type="text"] {
+            width: 100%; max-width: 400px; padding: 15px; border-radius: 10px;
+            border: 2px solid #222; background: #000; color: white;
+            font-family: 'Lilita One'; font-size: 1.2rem; text-align: center;
+            margin-bottom: 20px; outline: none; transition: 0.3s;
+        }
+        input[type="text"]:focus { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 69, 0, 0.3); }
+
+        .save-btn {
+            display: inline-block; padding: 15px 40px; background: var(--orange);
+            color: white; border: none; border-radius: 10px; font-family: 'Lilita One';
+            font-size: 1.2rem; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 5px 0 #9e2b00;
+        }
+        .save-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #9e2b00; }
+        .save-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #9e2b00; }
+
+        /* Panel de Bienvenida */
+        #welcomePanel { display: none; margin-top: 50px; }
+        .user-badge {
+            font-size: 2.5rem; font-family: 'Lilita One'; color: var(--orange);
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+
+        .logout-link {
+            display: block; margin-top: 20px; color: #444; font-size: 0.8rem;
+            text-decoration: underline; cursor: pointer;
+        }
+
+        footer { padding: 40px; text-align: center; opacity: 0.2; font-family: 'Lilita One'; margin-top: 100px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-text">STRANGE WORLD</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="AboutUs.html">About Us</a>
+            <a href="Community.html" class="active">Community</a>
+            <a href="Store.html">Store</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="comm-header">
+            <h1>SURVIVOR HUB</h1>
+            <p style="color: #444; font-weight: bold; letter-spacing: 2px;">JOIN THE COLLECTIVE CONSCIOUSNESS</p>
+        </section>
+
+        <!-- Sección de Ingreso -->
+        <div id="loginGate" class="user-gate">
+            <h2>WHO ARE YOU?</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 0.9rem;">No passwords. No tracking. Only your name remains.</p>
+            <input type="text" id="usernameInput" placeholder="ENTER USERNAME..." maxlength="15">
+            <br>
+            <button class="save-btn" onclick="saveUser()">REGISTER IDENTITY</button>
+        </div>
+
+        <!-- Sección de Bienvenida -->
+        <div id="welcomePanel">
+            <p style="color: #666; font-size: 1.2rem; margin-bottom: 10px;">WELCOME BACK, SURVIVOR</p>
+            <div id="displayName" class="user-badge"></div>
+            <p style="margin-top: 30px; color: var(--cyan); line-height: 1.6;">
+                Your presence has been recorded in the void. <br>
+                Stay tuned for community challenges and exclusive lore.
+            </p>
+            <span class="logout-link" onclick="clearUser()">Erase Identity</span>
+        </div>
+    </main>
+
+    <footer>STRANGE WORLD STUDIO // 2026</footer>
+
+    <script>
+        // Al cargar la página, verificamos si ya existe un usuario
+        window.onload = function() {
+            const savedUser = localStorage.getItem('sw_username');
+            if (savedUser) {
+                showWelcome(savedUser);
+            }
+        };
+
+        function saveUser() {
+            const input = document.getElementById('usernameInput');
+            const name = input.value.trim();
+
+            if (name.length >= 3) {
+                localStorage.setItem('sw_username', name);
+                showWelcome(name);
+            } else {
+                alert("Identity too short. Use at least 3 characters.");
+            }
+        }
+
+        function showWelcome(name) {
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('welcomePanel').style.display = 'block';
+            document.getElementById('displayName').innerText = name;
+        }
+
+        function clearUser() {
+            localStorage.removeItem('sw_username');
+            location.reload(); // Recarga para volver al inicio
+        }
+    </script>
+</body>
+</html>
