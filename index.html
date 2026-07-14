@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Strange World | Shadow Hope</title>
+    
+    <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --orange: #ff4500;
+            --cyan: #00e5ff;
+            --dark: #020202;
+            --gray: #0a0a0a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        body { background-color: var(--dark); color: #ffffff; font-family: 'Rubik', sans-serif; overflow-x: hidden; }
+
+        /* --- NAVEGACIÓN --- */
+        header {
+            padding: 20px 8%; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0,0,0,0.9); border-bottom: 2px solid #111;
+            position: fixed; width: 100%; top: 0; z-index: 1000; backdrop-filter: blur(10px);
+        }
+        .logo-nav { font-family: 'Lilita One'; font-size: 1.8rem; color: #fff; text-decoration: none; }
+        nav a { font-family: 'Lilita One'; color: #888; text-decoration: none; margin-left: 25px; transition: 0.3s; }
+        nav a:hover, .active { color: var(--orange); text-shadow: 0 0 10px var(--orange); }
+
+        /* --- LOGO FLOTANTE ANIMADO --- */
+        .hero {
+            height: 100vh; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center; padding: 0 10%;
+            background: radial-gradient(circle, #1a0a00 0%, #020202 100%);
+        }
+
+        .floating-logo {
+            width: 180px; margin-bottom: 30px;
+            filter: drop-shadow(0 0 15px var(--orange));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(2deg); filter: drop-shadow(0 0 25px var(--cyan)); }
+        }
+
+        .hero h1 { font-family: 'Lilita One'; font-size: clamp(3rem, 10vw, 6rem); text-transform: uppercase; margin-bottom: 10px; }
+        .hero p { color: #888; max-width: 600px; margin-bottom: 35px; line-height: 1.6; }
+
+        /* --- BOTONES --- */
+        .btn-primary {
+            padding: 15px 40px; background: var(--orange); color: #fff;
+            text-decoration: none; font-family: 'Lilita One'; font-size: 1.4rem;
+            border-radius: 12px; box-shadow: 0 5px 0 #9e2b00; transition: 0.2s;
+        }
+        .btn-primary:hover { transform: scale(1.05); }
+
+        /* --- SECCIÓN DE CONTENIDO (INFO) --- */
+        .content-section { padding: 100px 10%; background: var(--dark); }
+        .grid-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+
+        .info-card {
+            background: var(--gray); padding: 40px; border-radius: 20px;
+            border: 1px solid #1a1a1a; transition: 0.3s;
+        }
+        .info-card:hover { border-color: var(--orange); transform: translateY(-10px); }
+        .info-card h3 { font-family: 'Lilita One'; color: var(--orange); margin-bottom: 15px; font-size: 1.5rem; }
+        .info-card p { color: #666; font-size: 0.95rem; }
+
+        /* --- FOOTER --- */
+        footer { padding: 50px 10%; border-top: 1px solid #111; display: flex; justify-content: space-between; align-items: center; color: #333; font-family: 'Lilita One'; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo-nav">STRANGE WORLD</a>
+        <nav>
+            <a href="index.html" class="active">Home</a>
+            <a href="AboutUs.html">About Us</a>
+            <a href="Community.html">Community</a>
+            <a href="Store.html">Store</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <!-- Logo Flotante -->
+        <img src="https://i.ibb.co/DPmtLPMj/Icon.png" alt="Shadow Hope Logo" class="floating-logo">
+        
+        <h1>SHADOW HOPE</h1>
+        <p>A Cyber-Horror experience developed by <b>Carlos Escalona</b>. Traverse the glitch, survive the shadows, and uncover the truth behind the project.</p>
+        
+        <div style="margin-top: 10px;">
+            <a href="Store.html" class="btn-primary">GET ACCESS</a>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div style="text-align: center; margin-bottom: 60px;">
+            <h2 style="font-family: 'Lilita One'; font-size: 2.5rem;">PROJECT INTEL</h2>
+            <p style="color: var(--cyan);">System specifications and game core</p>
+        </div>
+
+        <div class="grid-info">
+            <div class="info-card">
+                <h3>OPTIMIZED</h3>
+                <p>Designed to run smoothly on Windows 10 LTSC and 2016-era hardware. No lag, just terror.</p>
+            </div>
+            <div class="info-card">
+                <h3>GODOT POWERED</h3>
+                <p>Built with Godot Engine and custom GDScript for precise mechanical horror and triggers.</p>
+            </div>
+            <div class="info-card">
+                <h3>CYBER VOID</h3>
+                <p>Immerse yourself in a world where 3D modeling (Blender) and 2D art (Krita) merge into dread.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div>STRANGE WORLD STUDIO © 2026</div>
+        <div style="color: var(--orange);">CABUDARE - VENEZUELA</div>
+    </footer>
+
+</body>
+</html>
