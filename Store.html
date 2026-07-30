@@ -231,7 +231,6 @@ color: white;
 
 
 
-/* Estilos de la barra de usuario en Header */
 .user-display-container{
 display: flex;
 align-items: center;
@@ -691,7 +690,6 @@ font-size: 0.85rem;
 
 
 
-/* Botón y Panel Desplegable Add Game+ en el Header */
 .add-game-header-btn {
 background: var(--orange);
 color: white;
@@ -724,7 +722,6 @@ box-shadow: 0 15px 35px rgba(0,0,0,0.9);
 
 
 
-/* Resultados de búsqueda de usuarios con coincidencia */
 .search-results-box {
 position: absolute;
 background: #080808;
@@ -1017,13 +1014,10 @@ THE VAULT
 
 <div class="user-controls">
 
-<!-- BOTÓN EXCLUSIVO ADMIN: ADD GAME+ UBICADO EN EL HEADER -->
 <div id="admin-add-game-header-container"></div>
 
-<!-- BOTÓN CAMBIO DE VISTA (STORE / COMMUNITY) -->
 <button id="nav-switch-btn" class="nav-switch-btn" onclick="toggleMainView()">COMMUNITY</button>
 
-<!-- PERFIL DE USUARIO: [AVATAR] [NOMBRE + BADGE] -->
 <div class="user-display-container" onclick="navigateToProfile(currentUser.username)">
 <div class="user-avatar-box" id="header-avatar-box" title="Change Avatar" onclick="event.stopPropagation()">
 <span id="avatar-fallback">+</span>
@@ -1048,11 +1042,10 @@ LOGOUT
 
 
 
-<!-- VISTA STORE (TIENDA Y JUEGOS) -->
+<!-- VISTA STORE -->
 <div id="view-store" class="views-container active-view">
 <div class="store-box" style="margin-top:30px;">
     
-<!-- GRID DINÁMICO DE JUEGOS -->
 <div id="store-games-grid" class="store-grid"></div>
 
 </div>
@@ -1060,11 +1053,10 @@ LOGOUT
 
 
 
-<!-- VISTA COMMUNITY (RED SOCIAL) -->
+<!-- VISTA COMMUNITY -->
 <div id="view-community" class="views-container">
 <div class="main-layout">
 
-<!-- SIDEBAR AMIGOS, BÚSQUEDA Y SOLICITUDES -->
 <aside class="sidebar">
 <h3>COMMUNITY</h3>
 <div style="margin-bottom: 20px; position: relative;">
@@ -1081,12 +1073,10 @@ LOGOUT
 </aside>
 
 
-<!-- FEED DE PUBLICACIONES (O PERFIL DE USUARIO) -->
 <div class="content-feed">
 
 <div id="profile-header-container" class="hidden"></div>
 
-<!-- CREADOR DE PUBLICACIONES (Solo se muestra en el feed principal o en el perfil propio) -->
 <div id="post-creator-box" class="post-creator">
 <textarea id="post-text-content" rows="3" placeholder="What's happening in Strange World? Share text, photos or videos..."></textarea>
 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -1096,7 +1086,6 @@ LOGOUT
 </div>
 
 
-<!-- MURO / FEED DE PUBLICACIONES -->
 <div id="feed-posts-container" class="feed-container"></div>
 
 </div>
@@ -1113,12 +1102,23 @@ LOGOUT
 
 
 
-<script>
+<script type="module">
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/analytics.js";
 
-// =================================
-// CONFIGURACION Y URLs
-// =================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCH1zFMTERRa-UfjhtBvpIvTb3r3GNhTfY",
+  authDomain: "strangeworld-84ea7.firebaseapp.com",
+  projectId: "strangeworld-84ea7",
+  storageBucket: "strangeworld-84ea7.firebasestorage.app",
+  messagingSenderId: "85741297859",
+  appId: "1:85741297859:web:e7dbee985bc6adacfcc276",
+  measurementId: "G-NSEVDMRW3S"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 const EMAIL_PUBLIC_KEY = "yUvWoq451Lb_sn__9";
 const EMAIL_SERVICE = "service_oyw7kda";
@@ -1126,53 +1126,27 @@ const TEMPLATE_REGISTER = "template_ec1vtkq";
 const TEMPLATE_RECOVERY = "template_5ym9ghb";
 
 const MICROSOFT_LOGO_SVG = '<img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" class="microsoft-logo" alt="Microsoft">';
-const VERIFIED_BADGE_HTML = '<img src="Creator.png" class="verified-badge" alt="Verified">'; // Único icono verificado
+const VERIFIED_BADGE_HTML = '<img src="Creator.png" class="verified-badge" alt="Verified">';
 
-
-// Inicializar EmailJS
 emailjs.init(EMAIL_PUBLIC_KEY);
 
-
-// Variables Globales
 let registerCode = null;
 let recoveryCode = null;
 let tempUser = null;
 let currentUser = null;
-let currentActiveView = "store"; // "store" o "community"
-let viewingProfileUser = null; // null si estamos en el feed general, o nombre de usuario si estamos viendo un perfil /Store/usuario/
-
-
-// ================================
-// DETECCIÓN AUTOMÁTICA DE DISPOSITIVO
-// ================================
+let currentActiveView = "store";
+let viewingProfileUser = null;
 
 function detectUserDevice() {
 let ua = navigator.userAgent || navigator.vendor || window.opera;
-if (/android/i.test(ua)) {
-return "Android";
-}
-if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
-return "iOS";
-}
-if (/windows phone/i.test(ua)) {
-return "Windows Phone";
-}
-if (/macintosh|mac os x/i.test(ua)) {
-return "Mac";
-}
-if (/windows/i.test(ua)) {
+if (/android/i.test(ua)) return "Android";
+if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "iOS";
+if (/windows phone/i.test(ua)) return "Windows Phone";
+if (/macintosh|mac os x/i.test(ua)) return "Mac";
+if (/windows/i.test(ua)) return "PC";
+if (/linux/i.test(ua)) return "Linux";
 return "PC";
 }
-if (/linux/i.test(ua)) {
-return "Linux";
-}
-return "PC"; // Por defecto
-}
-
-
-// ================================
-// COMPROBAR SESIÓN ACTIVA AL CARGAR
-// ================================
 
 window.addEventListener("DOMContentLoaded", () => {
 let savedSession = localStorage.getItem("ActiveSessionUser");
@@ -1187,7 +1161,6 @@ parseUrlRoute();
 }
 }
 
-// Escuchar cambios en la URL (simulación de rutas /Store/usuario/)
 window.addEventListener('popstate', () => {
 if(currentUser) {
 parseUrlRoute();
@@ -1213,13 +1186,8 @@ saveUsers(users);
 }
 }
 
-
-// ================================
-// RUTAS Y ENLACES HASH / Store / usuario
-// ================================
-
 function parseUrlRoute(){
-let hash = window.location.hash; // Ej: #usuario o /Store/#usuario
+let hash = window.location.hash;
 let cleanHash = hash.replace("#", "").trim();
 if(cleanHash.startsWith("/")) {
 cleanHash = cleanHash.substring(1);
@@ -1248,10 +1216,8 @@ loadCommunityData();
 loadFeed();
 }
 
-
-// ================================
-// UI NAV & VIEWS TOGGLE
-// ================================
+window.navigateToProfile = navigateToProfile;
+window.goHome = goHome;
 
 function show(id){
 document.querySelectorAll(".auth-card").forEach(x=>{
@@ -1259,6 +1225,7 @@ x.classList.add("hidden");
 });
 document.getElementById(id).classList.remove("hidden");
 }
+window.show = show;
 
 function toggleMainView(){
 let storeView = document.getElementById("view-store");
@@ -1277,11 +1244,7 @@ btn.innerText = "COMMUNITY";
 currentActiveView = "store";
 }
 }
-
-
-// ================================
-// DATABASE STORAGE UTILS
-// ================================
+window.toggleMainView = toggleMainView;
 
 function getUsers(){
 let data = localStorage.getItem("UsersDB");
@@ -1312,11 +1275,6 @@ try{ return JSON.parse(data); }catch{ return []; }
 function saveGames(games){
 localStorage.setItem("GamesDB", JSON.stringify(games));
 }
-
-
-// ================================
-// REGISTRO EMAIL
-// ================================
 
 function sendCode(){
 let email = document.getElementById("reg-mail").value;
@@ -1350,6 +1308,7 @@ console.log(err);
 alert("Email error");
 });
 }
+window.sendCode = sendCode;
 
 function verifyCode(){
 let code = document.getElementById("reg-code").value;
@@ -1359,11 +1318,7 @@ return;
 }
 show("view-password");
 }
-
-
-// ================================
-// CREAR CUENTA
-// ================================
+window.verifyCode = verifyCode;
 
 function createAccount(){
 let pass = document.getElementById("new-password").value;
@@ -1403,11 +1358,7 @@ saveUsers(users);
 alert("Account created successfully. Your profile link is /Store/#" + tempUser.username);
 show("view-start");
 }
-
-
-// ================================
-// LOGIN
-// ================================
+window.createAccount = createAccount;
 
 function login(){
 let user = document.getElementById("id-input").value;
@@ -1433,11 +1384,7 @@ localStorage.setItem("ActiveSessionUser", currentUser.username);
 unlockVault();
 parseUrlRoute();
 }
-
-
-// ================================
-// RECOVERY
-// ================================
+window.login = login;
 
 function sendRecovery(){
 let email = document.getElementById("recover-email").value;
@@ -1466,6 +1413,7 @@ console.log(err);
 alert("Email error");
 });
 }
+window.sendRecovery = sendRecovery;
 
 function changePassword(){
 let email = document.getElementById("recover-email").value;
@@ -1489,11 +1437,7 @@ saveUsers(users);
 alert("Password changed successfully");
 show("view-start");
 }
-
-
-// ================================
-// VAULT & PROFILE INIT
-// ================================
+window.changePassword = changePassword;
 
 function unlockVault(){
 document.getElementById("auth-system").style.display="none";
@@ -1545,16 +1489,13 @@ loadFeed();
 reader.readAsDataURL(input.files[0]);
 }
 }
+window.uploadAvatar = uploadAvatar;
 
 function logout(){
 localStorage.removeItem("ActiveSessionUser");
 location.reload();
 }
-
-
-// ================================
-// GESTIÓN Y RENDERIZADO DE JUEGOS EN LA STORE
-// ================================
+window.logout = logout;
 
 function calculateAge(date){
 let birth = new Date(date);
@@ -1571,7 +1512,6 @@ function renderStoreGames(){
 let adminHeaderContainer = document.getElementById("admin-add-game-header-container");
 let gamesGrid = document.getElementById("store-games-grid");
 
-// Renderizar botón Add Game+ en el Header si es StrangeWorld (Admin)
 if(currentUser && currentUser.username === "StrangeWorld"){
 adminHeaderContainer.innerHTML = `
 <button class="add-game-header-btn" onclick="toggleAddGameDropdown(event)">Add Game+</button>
@@ -1612,11 +1552,9 @@ adminHeaderContainer.innerHTML = `
 adminHeaderContainer.innerHTML = "";
 }
 
-// Renderizar los juegos guardados filtrados por dispositivo detectado
 let games = getGames();
 let detectedDevice = detectUserDevice();
 
-// Filtrar juegos cuyo dispositivo coincida con el detectado
 let filteredGames = games.filter(game => {
 let gameDevice = game.device || "PC";
 return gameDevice.toLowerCase() === detectedDevice.toLowerCase();
@@ -1688,8 +1626,8 @@ if(dropdown){
 dropdown.classList.toggle("hidden");
 }
 }
+window.toggleAddGameDropdown = toggleAddGameDropdown;
 
-// Cerrar el desplegable si se hace clic fuera de él
 window.addEventListener("click", () => {
 let dropdown = document.getElementById("add-game-dropdown");
 if(dropdown && !dropdown.classList.contains("hidden")){
@@ -1705,6 +1643,7 @@ urlInput.classList.add("hidden");
 urlInput.classList.remove("hidden");
 }
 }
+window.toggleGameStatusInput = toggleGameStatusInput;
 
 function publishNewGame(){
 let title = document.getElementById("new-game-title").value.trim();
@@ -1731,6 +1670,7 @@ return;
 }
 
 let saveGameData = (logoBase64) => {
+try {
 let games = getGames();
 let newGame = {
 id: Date.now().toString(),
@@ -1740,12 +1680,16 @@ status: status,
 downloadUrl: status === "coming" ? "" : downloadUrl,
 hasMicrosoft: hasMs,
 microsoftUrl: hasMs ? msUrl : "",
-logo: logoBase64
+logo: logoBase64 || ""
 };
 games.push(newGame);
 saveGames(games);
 renderStoreGames();
 alert("¡Juego publicado con éxito!");
+} catch(err) {
+console.error(err);
+alert("Error al guardar: La imagen es demasiado pesada para el almacenamiento local.");
+}
 };
 
 if(logoInput.files && logoInput.files[0]){
@@ -1758,6 +1702,7 @@ reader.readAsDataURL(logoInput.files[0]);
 saveGameData("");
 }
 }
+window.publishNewGame = publishNewGame;
 
 function deleteGame(gameId){
 if(!currentUser || currentUser.username !== "StrangeWorld") return;
@@ -1768,11 +1713,7 @@ games = games.filter(g => g.id !== gameId);
 saveGames(games);
 renderStoreGames();
 }
-
-
-// ================================
-// BÚSQUEDA DE USUARIOS INTELIGENTE
-// ================================
+window.deleteGame = deleteGame;
 
 function handleUserSearchInput(query){
 let container = document.getElementById("search-results-container");
@@ -1823,12 +1764,14 @@ ${avatarHtml}
 container.innerHTML = html;
 container.classList.remove("hidden");
 }
+window.handleUserSearchInput = handleUserSearchInput;
 
 function selectSearchResult(username){
 document.getElementById("friend-search-input").value = username;
 document.getElementById("search-results-container").classList.add("hidden");
 navigateToProfile(username);
 }
+window.selectSearchResult = selectSearchResult;
 
 function sendFriendRequestFromInput(){
 let targetName = document.getElementById("friend-search-input").value.trim();
@@ -1861,11 +1804,7 @@ document.getElementById("friend-search-input").value = "";
 document.getElementById("search-results-container").classList.add("hidden");
 alert("Friend request sent!");
 }
-
-
-// ================================
-// RED SOCIAL: AMIGOS Y SOLICITUDES
-// ================================
+window.sendFriendRequestFromInput = sendFriendRequestFromInput;
 
 function loadCommunityData(){
 let users = getUsers();
@@ -1921,11 +1860,7 @@ sender.friends.push(current.username);
 saveUsers(users);
 loadCommunityData();
 }
-
-
-// ================================
-// VERIFICACIÓN DE USUARIOS
-// ================================
+window.acceptRequest = acceptRequest;
 
 function toggleVerifyUser(username){
 if(currentUser.username !== "StrangeWorld") return;
@@ -1940,11 +1875,7 @@ loadFeed();
 alert(`Estado de verificación actualizado para ${username}.`);
 }
 }
-
-
-// ================================
-// RED SOCIAL: PUBLICACIONES Y PERFILES
-// ================================
+window.toggleVerifyUser = toggleVerifyUser;
 
 function createPost(){
 let text = document.getElementById("post-text-content").value.trim();
@@ -1956,13 +1887,14 @@ return;
 }
 
 let handleFile = (mediaUrl, mediaType) => {
+try {
 let posts = getPosts();
 let newPost = {
 id: Date.now().toString(),
 author: currentUser.username,
 text: text,
-mediaUrl: mediaUrl,
-mediaType: mediaType,
+mediaUrl: mediaUrl || "",
+mediaType: mediaType || "",
 likes: [],
 comments: [],
 timestamp: Date.now()
@@ -1974,6 +1906,10 @@ savePosts(posts);
 document.getElementById("post-text-content").value = "";
 document.getElementById("post-media-file").value = "";
 loadFeed();
+} catch(err) {
+console.error(err);
+alert("Error al publicar: El archivo multimedia es demasiado pesado para el almacenamiento local.");
+}
 };
 
 if(fileInput.files.length > 0){
@@ -1988,6 +1924,7 @@ reader.readAsDataURL(file);
 handleFile(null, null);
 }
 }
+window.createPost = createPost;
 
 function loadFeed(){
 let posts = getPosts();
@@ -2061,7 +1998,7 @@ return;
 }
 
 posts.forEach(post => {
-let isLiked = post.likes.includes(currentUser.username);
+let isLiked = post.likes && post.likes.includes(currentUser.username);
 let authorData = users.find(u => u.username.toLowerCase() === post.author.toLowerCase());
 let authorAvatar = authorData && authorData.avatar ? authorData.avatar : (post.author === "StrangeWorld" ? "Icon.png" : "");
 
@@ -2096,6 +2033,7 @@ adminHtml = `
 }
 
 let commentsHtml = "";
+if(post.comments && post.comments.length > 0){
 post.comments.forEach((c) => {
 let cAuthorData = users.find(u => u.username.toLowerCase() === c.author.toLowerCase());
 let cAvatar = cAuthorData && cAuthorData.avatar ? cAuthorData.avatar : (c.author === "StrangeWorld" ? "Icon.png" : "");
@@ -2117,6 +2055,7 @@ ${cAvatarHtml}
 </div>
 `;
 });
+}
 
 container.innerHTML += `
 <div class="post-card">
@@ -2128,7 +2067,7 @@ ${post.text ? `<div class="post-text">${post.text}</div>` : ""}
 ${mediaHtml}
 <div class="post-actions">
 <button class="action-btn ${isLiked ? 'active' : ''}" onclick="toggleLike('${post.id}')">
-❤️ <span>${post.likes.length}</span> Likes
+❤️ <span>${post.likes ? post.likes.length : 0}</span> Likes
 </button>
 </div>
 ${adminHtml}
@@ -2147,16 +2086,12 @@ ${commentsHtml}
 });
 }
 
-
-// ================================
-// REACCIONES Y COMENTARIOS
-// ================================
-
 function toggleLike(postId){
 let posts = getPosts();
 let post = posts.find(p => p.id === postId);
 if(!post) return;
 
+if(!post.likes) post.likes = [];
 let index = post.likes.indexOf(currentUser.username);
 if(index === -1){
 post.likes.push(currentUser.username);
@@ -2167,6 +2102,7 @@ post.likes.splice(index, 1);
 savePosts(posts);
 loadFeed();
 }
+window.toggleLike = toggleLike;
 
 function addComment(postId){
 let input = document.getElementById(`comment-input-${postId}`);
@@ -2177,6 +2113,7 @@ let posts = getPosts();
 let post = posts.find(p => p.id === postId);
 if(!post) return;
 
+if(!post.comments) post.comments = [];
 post.comments.push({
 author: currentUser.username,
 text: text,
@@ -2187,11 +2124,7 @@ savePosts(posts);
 input.value = "";
 loadFeed();
 }
-
-
-// ================================
-// MODERACION (StrangeWorld)
-// ================================
+window.addComment = addComment;
 
 function adminDeletePost(postId){
 if(currentUser.username !== "StrangeWorld") return;
@@ -2202,6 +2135,7 @@ posts = posts.filter(p => p.id !== postId);
 savePosts(posts);
 loadFeed();
 }
+window.adminDeletePost = adminDeletePost;
 
 function adminDeleteUserPosts(username){
 if(currentUser.username !== "StrangeWorld") return;
@@ -2212,6 +2146,7 @@ posts = posts.filter(p => p.author !== username);
 savePosts(posts);
 loadFeed();
 }
+window.adminDeleteUserPosts = adminDeleteUserPosts;
 
 function adminPromptBanUser(username){
 if(currentUser.username !== "StrangeWorld") return;
@@ -2227,7 +2162,7 @@ input = input.trim().toLowerCase();
 let banDurationMs = 0;
 
 if(input === "permanente" || input === "perpetuo" || input === "perm"){
-banDurationMs = 86400000 * 365 * 100; // 100 años
+banDurationMs = 86400000 * 365 * 100;
 } else {
 let value = parseInt(input);
 if(isNaN(value) || value <= 0){
@@ -2241,7 +2176,6 @@ banDurationMs = value * 3600000;
 } else if(input.endsWith('d')){
 banDurationMs = value * 86400000;
 } else {
-// Por defecto minutos si no especifica letra
 banDurationMs = value * 60000;
 }
 }
@@ -2254,6 +2188,7 @@ saveUsers(users);
 alert(`User ${username} has been banned.`);
 }
 }
+window.adminPromptBanUser = adminPromptBanUser;
 
 </script>
 
