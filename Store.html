@@ -15,22 +15,49 @@
     <style>
         :root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; --card: #0a0a0a; }
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
-        body { background: var(--dark); color: #fff; font-family: 'Rubik', sans-serif; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-        header { padding: 20px 8%; display: flex; justify-content: space-between; align-items: center; background: #000; border-bottom: 4px solid var(--orange); position: sticky; top: 0; z-index: 1000; }
+        body { background: var(--dark); color: #fff; font-family: 'Rubik', sans-serif; -webkit-user-select: none; user-select: none; }
+        
+        header {
+            padding: 20px 8%; display: flex; justify-content: space-between; align-items: center;
+            background: #000; border-bottom: 4px solid var(--orange); position: sticky; top: 0; z-index: 1000;
+        }
         .logo { font-family: 'Lilita One'; font-size: 2rem; text-shadow: 2px 2px var(--orange); }
         nav a { font-family: 'Lilita One'; color: #fff; text-decoration: none; margin-left: 25px; transition: 0.3s; }
         nav a:hover, .active { color: var(--cyan); }
-        .auth-container { max-width: 420px; margin: 60px auto; padding: 40px; background: var(--card); border-radius: 25px; border: 1px solid #1a1a1a; text-align: center; }
-        h2 { font-family: 'Lilita One'; font-size: 2.2rem; color: var(--orange); margin-bottom: 20px; }
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: #fff; font-size: 1rem; outline: none; }
-        input:focus { border-color: var(--cyan); }
-        .btn { width: 100%; padding: 15px; background: var(--orange); border: none; border-radius: 12px; font-family: 'Lilita One'; color: #fff; font-size: 1.2rem; box-shadow: 0 5px 0 #9e2b00; transition: 0.2s; margin-bottom: 10px; }
-        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #9e2b00; }
-        .toggle-form { color: #888; font-size: 0.9rem; cursor: pointer; text-decoration: underline; display: inline-block; margin-top: 10px; }
-        .toggle-form:hover { color: var(--cyan); }
-        #loginSection, #registerSection, #otpSection, #passwordSetupSection, #storeContent { display: none; }
-        .footer-link { color: #555; font-size: 0.8rem; margin-top: 20px; display: block; text-decoration: none; }
+
+        /* Estructura de dos columnas inspirada en Facebook */
+        .fb-layout {
+            display: flex; max-width: 1000px; margin: 60px auto; padding: 20px;
+            align-items: center; justify-content: space-between; gap: 40px;
+        }
+        .fb-left { flex: 1; text-align: left; }
+        .fb-left h1 { font-family: 'Lilita One'; font-size: 3.5rem; color: var(--orange); margin-bottom: 15px; }
+        .fb-left p { font-size: 1.3rem; color: #aaa; line-height: 1.5; }
+        
+        .fb-right { flex: 1; max-width: 420px; width: 100%; }
+        .auth-container { padding: 30px; background: var(--card); border-radius: 16px; border: 1px solid #1a1a1a; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+
+        input, select { width: 100%; padding: 14px; margin-bottom: 14px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 1rem; outline: none; }
+        input:focus, select:focus { border-color: var(--cyan); }
+        
+        .label-group { text-align: left; margin-bottom: 5px; color: #888; font-size: 0.85rem; padding-left: 4px; }
+
+        .btn { width: 100%; padding: 14px; background: var(--orange); border: none; border-radius: 8px; font-family: 'Lilita One'; color: #fff; font-size: 1.2rem; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .btn:active { transform: scale(0.98); }
+        .btn-secondary { background: transparent; border: 1px solid #333; color: #aaa; margin-top: 10px; }
+        .btn-secondary:hover { border-color: var(--orange); color: #fff; }
+
+        .divider { border-top: 1px solid #222; margin: 20px 0; padding-top: 20px; }
         .hint { color: #666; font-size: 0.8rem; text-align: left; margin: -5px 0 15px 5px; line-height: 1.2; }
+
+        #loginSection, #registerSection, #otpSection, #passwordSetupSection, #storeContent { display: none; }
+
+        @media (max-width: 768px) {
+            .fb-layout { flex-direction: column; text-align: center; margin: 20px auto; }
+            .fb-left { text-align: center; }
+            .fb-left h1 { font-size: 2.5rem; }
+            .fb-left p { font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
@@ -45,122 +72,108 @@
         </nav>
     </header>
 
-    <div class="container">
-        <div id="authBox" class="auth-container">
-            <h2 id="mainTitle">ACCESS TERMINAL</h2>
-            
-            <div id="loginSection">
-                <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Enter credentials to enter the cyber void.</p>
-                <input type="text" id="loginUserOrEmail" placeholder="Username or Email">
-                <input type="password" id="loginPassword" placeholder="Password">
-                <button class="btn" onclick="handleLogin()">LOGIN</button>
-                <div style="margin: 15px 0;"><span class="toggle-form" onclick="switchForm('register')">Create an account</span></div>
-                <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 20px;">
-                    <div id="g_id_onload" data-client_id="://googleusercontent.com" data-callback="handleGoogleLogin"></div>
-                    <div class="g_id_signin" data-type="standard"></div>
-                </div>
-            </div>
-
-            <div id="registerSection">
-                <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Sign up to receive your security code.</p>
-                <input type="text" id="regUsername" placeholder="New Username">
-                <input type="email" id="regEmail" placeholder="Your Email">
-                <button class="btn" onclick="startRegistration()">GET CODE</button>
-                <div style="margin: 15px 0;"><span class="toggle-form" onclick="switchForm('login')">Already have an account? Login</span></div>
-                <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 20px;">
-                    <div class="g_id_signin" data-type="standard" data-callback="handleGoogleRegister"></div>
-                </div>
-            </div>
-
-            <div id="otpSection">
-                <p style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 20px;">Check your inbox. Code sent via EmailJS.</p>
-                <input type="text" id="otpInput" placeholder="6-DIGIT CODE" style="text-align: center; letter-spacing: 10px; font-size: 1.5rem;">
-                <button class="btn" onclick="verifyOTP()">VERIFY IDENTITY</button>
-                <a href="#" class="footer-link" onclick="location.reload()">Cancel Process</a>
-            </div>
-
-            <div id="passwordSetupSection">
-                <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Set up a secure password to finish registration.</p>
-                <input type="password" id="setupPassword" placeholder="Create Password">
-                <div class="hint">Must have at least 6 characters, 1 number, and 1 special symbol (*, #, @, etc.)</div>
-                <button class="btn" onclick="saveNewUserPassword()">FINISH REGISTRATION</button>
-            </div>
+    <!-- CONTENEDOR PRINCIPAL DOS COLUMNAS -->
+    <div class="fb-layout" id="mainAuthBlock">
+        
+        <!-- COLUMNA IZQUIERDA: MENSAJE DE ENTRADA -->
+        <div class="fb-left">
+            <h1>Strange World</h1>
+            <p>Traverse the glitch, survive the shadows, and unlock exclusive project intelligence terminal windows.</p>
         </div>
 
-        <div id="storeContent" class="auth-container" style="max-width: 600px;">
-            <h2>STORE UNLOCKED</h2>
-            <div style="background: #000; padding: 30px; border-radius: 20px; border: 1px dashed var(--orange);">
-                <h3 style="font-family: 'Lilita One'; color: var(--cyan);">SHADOW HOPE I</h3>
-                <p style="color: #888; margin: 15px 0;">Official Setup.exe for Windows.</p>
-                <a href="https://github.com" class="btn" style="text-decoration: none; display: block; text-align: center;">DOWNLOAD NOW</a>
+        <!-- COLUMNA DERECHA: INTERFACES -->
+        <div class="fb-right">
+            <div class="auth-container">
+                
+                <!-- TERMINAL DE ACCESO / INICIAR SESIÓN -->
+                <div id="loginSection">
+                    <input type="text" id="loginUserOrEmail" placeholder="Username or Email">
+                    <input type="password" id="loginPassword" placeholder="Password">
+                    <button class="btn" onclick="handleLogin()">Login</button>
+                    <div class="divider"></div>
+                    <button class="btn btn-secondary" onclick="switchForm('register')">Create a new account</button>
+                    
+                    <div style="margin-top: 25px;">
+                        <div id="g_id_onload" data-client_id="://googleusercontent.com" data-callback="handleGoogleLogin"></div>
+                        <div class="g_id_signin" data-type="standard"></div>
+                    </div>
+                </div>
+
+                <!-- REGISTRO TIPO FACEBOOK -->
+                <div id="registerSection">
+                    <input type="text" id="regUsername" placeholder="Choose a Username">
+                    <input type="email" id="regEmail" placeholder="Email Address">
+                    
+                    <!-- Campo de Fecha de Nacimiento Requerido -->
+                    <div class="label-group">Date of birth</div>
+                    <input type="date" id="regBirthdate" required>
+                    
+                    <button class="btn" onclick="startRegistration()">Get Verification Code</button>
+                    <div class="divider"></div>
+                    <button class="btn btn-secondary" onclick="switchForm('login')">Already have an account?</button>
+                    
+                    <div style="margin-top: 20px;">
+                        <div class="g_id_signin" data-type="standard" data-callback="handleGoogleRegister"></div>
+                    </div>
+                </div>
+
+                <!-- VERIFICACIÓN OTP -->
+                <div id="otpSection">
+                    <p style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 20px;">Code sent via EmailJS. Check your inbox.</p>
+                    <input type="text" id="otpInput" placeholder="6-DIGIT CODE" style="text-align: center; letter-spacing: 10px; font-size: 1.5rem;">
+                    <button class="btn" onclick="verifyOTP()">Verify Code</button>
+                    <button class="btn btn-secondary" onclick="location.reload()">Cancel</button>
+                </div>
+
+                <!-- ESTABLECER CONTRASEÑA -->
+                <div id="passwordSetupSection">
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Set up a password to complete registration.</p>
+                    <input type="password" id="setupPassword" placeholder="New Password">
+                    <div class="hint">Must have at least 6 characters, 1 number, and 1 special symbol (*, #, @, etc.)</div>
+                    <button class="btn" onclick="saveNewUserPassword()">Finish Registration</button>
+                </div>
+
             </div>
-            <a href="#" class="footer-link" onclick="logout()">Logout / Change Account</a>
         </div>
     </div>
 
-    <script>
-        // --- 🛡️ SISTEMA DE PROTECCIÓN ANTIDEBUGGER Y HERRAMIENTAS ---
-        (function() {
-            // Deshabilitar Clic Derecho
-            document.addEventListener('contextmenu', e => e.preventDefault());
+    <!-- TIENDA DESBLOQUEADA CON FILTRADO DE EDAD -->
+    <div id="storeContent" class="auth-container" style="max-width: 600px; margin: 80px auto;">
+        <h2>STORE INTEL</h2>
+        <div style="background: #000; padding: 30px; border-radius: 20px; border: 1px dashed var(--orange); margin-top: 20px;">
+            <h3 style="font-family: 'Lilita One'; color: var(--cyan);">SHADOW HOPE I</h3>
+            <p style="color: #888; margin: 5px 0 15px 0;">Official Setup.exe for Windows. (IARC 7+ Classification)</p>
+            
+            <!-- Bloques condicionales que se activan según la edad computada -->
+            <div id="downloadAllowed" style="display: none;">
+                <a href="https://github.com" class="btn" style="text-decoration: none; display: block; text-align: center; margin: 0;">DOWNLOAD NOW</a>
+            </div>
+            
+            <div id="downloadRestricted" style="display: none; background: #1a0505; border: 1px solid #ff3333; padding: 15px; border-radius: 8px;">
+                <p style="color: #ff6666; font-size: 0.95rem; font-weight: bold; margin: 0;">
+                    We are sorry, you do not meet the appropriate age requirements to play this game.
+                </p>
+            </div>
+        </div>
+        <a href="#" class="footer-link" onclick="logout()">Logout / Change Account</a>
+    </div>
 
-            // Deshabilitar combinaciones clave (F12, Ctrl+U, Ctrl+Shift+I, etc.)
+    <script>
+        // --- 🛡️ PROTECCIÓN ACTIVA ANTIDEBUGGER ---
+        (function() {
+            document.addEventListener('contextmenu', e => e.preventDefault());
             document.addEventListener('keydown', e => {
-                if (e.keyCode === 123 || // F12
-                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
-                    (e.ctrlKey && e.keyCode === 85)) { // Ctrl+U
-                    e.preventDefault();
-                    return false;
+                if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85)) {
+                    e.preventDefault(); return false;
                 }
             });
-
-            // Anti-Inspección activa mediante congelamiento por depurador
-            setInterval(function() {
-                (function() { return false; })['constructor']('debugger')();
-            }, 100);
+            setInterval(function() { (function() { return false; })['constructor']('debugger')(); }, 100);
         })();
 
-        // --- 💾 MANEJO OFUSCADO DE "Users.txt" (Codificado en Base64) ---
+        // --- 💾 LÓGICA DE NEGOCIO ---
         (function() { emailjs.init("UGD7l3nL7Vkeyu5D3"); })();
 
         if (!localStorage.getItem('Users_txt')) {
-            // "StrangeWorld. Password: 123456* shadowhopesh@gmail.com\n" codificado en Base64
-            const initialEncrypted = "U3RyYW5nZVdvcmxkLiBQYXNzd29yZDogMTIzNDU2KiBzaGFkb3dob3Blc2hAZ21haWwuY29tCg==";
+            // Formato por defecto: StrangeWorld. Password: 123456* shadowhopesh@gmail.com | Birth: 1995-01-01
+            const initialEncrypted = btoa("StrangeWorld. Password: 123456* shadowhopesh@gmail.com | Birth: 1995-01-01\n");
             localStorage.setItem('Users_txt', initialEncrypted);
-        }
-
-        let generatedCode = null;
-        let tempUserSession = {};
-
-        function switchForm(form) {
-            if(form === 'login') {
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('registerSection').style.display = 'none';
-                document.getElementById('mainTitle').innerText = "ACCESS TERMINAL";
-            } else {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('registerSection').style.display = 'block';
-                document.getElementById('mainTitle').innerText = "CREATE ACCOUNT";
-            }
-        }
-
-        function getUsersDatabase() {
-            try {
-                const encryptedText = localStorage.getItem('Users_txt') || "";
-                // Decodificar Base64 de forma interna
-                const rawText = atob(encryptedText);
-                const lines = rawText.split('\n');
-                const users = [];
-                
-                lines.forEach(line => {
-                    if(line.trim() === "") return;
-                    const dotIndex = line.indexOf('.');
-                    const passLabelIndex = line.indexOf('. Password: ');
-                    
-                    if (dotIndex !== -1 && passLabelIndex !== -1) {
-                        const username = line.substring(0, dotIndex).trim();
-                        const afterPass = line.substring(passLabelIndex + 12);
-                        const spaceIndex = afterPass.indexOf(' ');
-                        
-                        if (spaceIndex !== -1) {
-                            const password = afterPass.substring(0, spaceIndex).trim();
