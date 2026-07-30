@@ -1,2198 +1,1111 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Strange World | Secure Vault & Community</title>
-
-
+<title>Strange World | Store & Vault</title>
 <link rel="icon" href="https://i.ibb.co/DPmtLPMj/Icon.png">
-
-
-<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
-
-
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+  import { firebaseConfig } from "./firebase-config.js";
 
-
+  const app = initializeApp(firebaseConfig);
+  const storage = getStorage(app);
+  window.firebaseStorage = { storage, ref, uploadBytes, getDownloadURL };
+</script>
 <style>
-
-:root{
---orange:#ff4500;
---cyan:#00e5ff;
---dark:#020202;
-}
-
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Rubik',sans-serif;
-}
-
-
-body{
-background:#020202;
-color:white;
-min-height:100vh;
-}
-
-
-
-.hidden{
-display:none!important;
-}
-
-
-
-#auth-system{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.97);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:9999;
-padding: 20px;
-overflow-y: auto;
-}
-
-
-
-.auth-card{
-width: 100%;
-max-width: 420px;
-background:#080808;
-border:2px solid var(--orange);
-border-radius:30px;
-padding: 30px 20px;
-text-align:center;
-margin: auto;
-}
-
-
-
-h2{
-font-family:'Lilita One';
-font-size:2.5rem;
-}
-
-
-
-.orange-title{
-color:var(--orange);
-}
-
-
-
-.cyan-title{
-color:var(--cyan);
-}
-
-
-
-input, textarea, select{
-width:100%;
-padding:15px;
-margin:10px 0;
-background:#111;
-border:1px solid #333;
-border-radius:12px;
-color:white;
-text-align:center;
-resize: vertical;
-}
-
-textarea{
-text-align: left;
-}
-
-
-
-.btn-action{
-width:100%;
-padding:15px;
-margin-top:10px;
-border:none;
-border-radius:12px;
-background:var(--orange);
-color:white;
-font-family:'Lilita One';
-font-size:1.2rem;
-cursor:pointer;
-}
-
-
-
-.btn-action:hover{
-background:white;
-color:var(--orange);
-}
-
-
-
-.cyan-button{
-background:var(--cyan);
-color:black;
-}
-
-
-
-.link{
-display:block;
-margin-top:15px;
-color:var(--cyan);
-cursor:pointer;
-}
-
-
-
-.small-text{
-color:#777;
-font-size:.85rem;
-margin:15px;
-}
-
-
-
-.otp-input{
-border:2px dashed var(--cyan);
-font-size:1.5rem;
-letter-spacing:8px;
-}
-
-
-
-#vault-ui{
-padding:40px 5%;
-opacity:0;
-filter:blur(20px);
-transition:1s;
-}
-
-
-
-#vault-ui.unlocked{
-opacity:1;
-filter:blur(0);
-}
-
-
-
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:4px solid var(--orange);
-padding-bottom:20px;
-flex-wrap: wrap;
-gap: 15px;
-}
-
-
-
-header h1{
-font-family:'Lilita One';
-font-size:2.5rem;
-cursor: pointer;
-}
-
-
-
-.user-controls{
-display:flex;
-gap:15px;
-align-items:center;
-flex-wrap: wrap;
-}
-
-
-
-.user-controls button, .nav-switch-btn{
-background:none;
-border:1px solid #444;
-color:white;
-padding:8px 15px;
-border-radius:10px;
-cursor: pointer;
-font-family:'Lilita One';
-letter-spacing: 0.5px;
-}
-
-.nav-switch-btn{
-background: var(--orange);
-border: none;
-color: white;
-}
-
-
-
-.user-display-container{
-display: flex;
-align-items: center;
-gap: 12px;
-background: #111;
-padding: 6px 15px 6px 6px;
-border-radius: 50px;
-border: 1px solid #333;
-cursor: pointer;
-}
-
-.user-display-container:hover{
-border-color: var(--cyan);
-}
-
-.user-avatar-box{
-width: 40px;
-height: 40px;
-border-radius: 50%;
-overflow: hidden;
-background: #222;
-display: flex;
-align-items: center;
-justify-content: center;
-position: relative;
-cursor: pointer;
-border: 2px solid var(--cyan);
-}
-
-.user-avatar-box img{
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-
-.user-avatar-box span{
-font-size: 1.5rem;
-color: var(--cyan);
-font-family: 'Lilita One';
-}
-
-.user-avatar-box input[type="file"]{
-position: absolute;
-inset: 0;
-opacity: 0;
-cursor: pointer;
-width: 100%;
-height: 100%;
-}
-
-.username-text{
-font-weight: bold;
-font-size: 1.1rem;
-display: flex;
-align-items: center;
-gap: 6px;
-}
-
-
-
-.views-container{
-display: none;
-}
-
-.views-container.active-view{
-display: block;
-}
-
-
-
-.main-layout{
-display: grid;
-grid-template-columns: 320px 1fr;
-gap: 30px;
-margin-top: 40px;
-}
-
-
-
-@media(max-width: 900px){
-.main-layout{
-grid-template-columns: 1fr;
-}
-}
-
-
-
-.sidebar{
-background: #080808;
-border: 1px solid #222;
-border-radius: 20px;
-padding: 20px;
-height: fit-content;
-}
-
-
-
-.sidebar h3{
-font-family: 'Lilita One';
-color: var(--cyan);
-margin-bottom: 15px;
-font-size: 1.5rem;
-}
-
-
-
-.friend-item, .request-item{
-display: flex;
-justify-content: space-between;
-align-items: center;
-background: #111;
-padding: 10px;
-border-radius: 10px;
-margin-bottom: 10px;
-font-size: 0.9rem;
-}
-
-
-
-.friend-item button, .request-item button{
-padding: 5px 10px;
-background: var(--cyan);
-color: black;
-border: none;
-border-radius: 6px;
-cursor: pointer;
-font-weight: bold;
-}
-
-
-
-.content-feed{
-display: flex;
-flex-direction: column;
-gap: 30px;
-}
-
-
-
-.store-grid{
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-gap: 20px;
-}
-
-
-
-.game-card{
-background:#0a0a0a;
-padding:25px 20px;
-border-radius:20px;
-border:1px solid #222;
-display: flex;
-flex-direction: column;
-align-items: center;
-text-align: center;
-gap: 15px;
-position: relative;
-}
-
-.game-card-header{
-display: flex;
-align-items: center;
-gap: 15px;
-width: 100%;
-justify-content: center;
-}
-
-.game-card-logo{
-width: 60px;
-height: 60px;
-border-radius: 12px;
-object-fit: cover;
-border: 1px solid var(--cyan);
-background: #111;
-}
-
-.game-card h3{
-font-family:'Lilita One';
-font-size:1.6rem;
-color:var(--cyan);
-margin: 0;
-}
-
-
-
-.download-buttons-box{
-display: flex;
-flex-direction: column;
-gap: 10px;
-width: 100%;
-}
-
-
-
-.download-btn{
-width:100%;
-padding:12px;
-background:var(--orange);
-border:none;
-border-radius:10px;
-color:white;
-font-family:'Lilita One';
-font-size:1.1rem;
-cursor:pointer;
-text-decoration: none;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 10px;
-text-align: center;
-}
-
-
-
-.download-btn.microsoft{
-background: #0067b8;
-}
-
-.download-btn.coming-soon{
-background: #333;
-color: #888;
-cursor: not-allowed;
-}
-
-.microsoft-logo{
-width: 20px;
-height: 20px;
-object-fit: contain;
-}
-
-
-
-.age-denied{
-background:#330000;
-border:2px solid red;
-padding:15px;
-border-radius:12px;
-color:#ff5555;
-font-family:'Lilita One';
-font-size: 0.9rem;
-text-align: center;
-width: 100%;
-}
-
-
-
-.post-creator{
-background: #080808;
-border: 2px solid #222;
-border-radius: 20px;
-padding: 20px;
-}
-
-
-
-.post-creator textarea{
-background: #111;
-border: 1px solid #333;
-color: white;
-padding: 15px;
-border-radius: 12px;
-width: 100%;
-margin-bottom: 10px;
-}
-
-
-
-.post-creator input[type="file"]{
-background: none;
-border: none;
-padding: 5px 0;
-color: #aaa;
-}
-
-
-
-.feed-container{
-display: flex;
-flex-direction: column;
-gap: 20px;
-}
-
-
-
-.post-card{
-background: #0a0a0a;
-border: 1px solid #222;
-border-radius: 20px;
-padding: 20px;
-}
-
-
-
-.post-header{
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 15px;
-}
-
-
-
-.post-author{
-display: flex;
-align-items: center;
-gap: 10px;
-font-weight: bold;
-font-size: 1.1rem;
-cursor: pointer;
-}
-
-.post-author:hover{
-color: var(--cyan);
-}
-
-.post-avatar{
-width: 32px;
-height: 32px;
-border-radius: 50%;
-object-fit: cover;
-border: 1px solid var(--cyan);
-}
-
-
-
-.verified-badge{
-width: 18px;
-height: 18px;
-vertical-align: middle;
-}
-
-
-
-.post-media{
-width: 100%;
-max-height: 400px;
-object-fit: cover;
-border-radius: 12px;
-margin: 15px 0;
-}
-
-
-
-.post-text{
-color: #ddd;
-margin-bottom: 15px;
-line-height: 1.5;
-word-break: break-word;
-}
-
-
-
-.post-actions{
-display: flex;
-gap: 15px;
-align-items: center;
-border-top: 1px solid #1a1a1a;
-padding-top: 15px;
-margin-top: 15px;
-}
-
-
-
-.action-btn{
-background: none;
-border: none;
-color: #888;
-cursor: pointer;
-font-size: 0.95rem;
-display: flex;
-align-items: center;
-gap: 5px;
-}
-
-
-
-.action-btn:hover, .action-btn.active{
-color: var(--cyan);
-}
-
-
-
-.comments-section{
-margin-top: 15px;
-border-top: 1px dashed #222;
-padding-top: 15px;
-}
-
-
-
-.comment-item{
-background: #111;
-padding: 10px;
-border-radius: 8px;
-margin-bottom: 8px;
-font-size: 0.9rem;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-
-
-
-.comment-form{
-display: flex;
-gap: 10px;
-margin-top: 10px;
-}
-
-
-
-.comment-form input{
-margin: 0;
-padding: 8px 12px;
-font-size: 0.9rem;
-}
-
-
-
-.comment-form button{
-padding: 0 15px;
-background: var(--orange);
-border: none;
-border-radius: 8px;
-color: white;
-font-family: 'Lilita One';
-cursor: pointer;
-}
-
-
-
-.admin-panel{
-background: #150000;
-border: 1px solid #ff4444;
-padding: 15px;
-border-radius: 12px;
-margin-top: 15px;
-display: flex;
-gap: 10px;
-align-items: center;
-flex-wrap: wrap;
-}
-
-
-
-.admin-btn{
-background: #ff4444;
-color: white;
-border: none;
-padding: 6px 12px;
-border-radius: 6px;
-cursor: pointer;
-font-weight: bold;
-font-size: 0.85rem;
-}
-
-
-
-.add-game-header-btn {
-background: var(--orange);
-color: white;
-border: none;
-padding: 8px 18px;
-border-radius: 10px;
-cursor: pointer;
-font-family: 'Lilita One';
-letter-spacing: 0.5px;
-}
-
-.add-game-header-btn:hover {
-background: white;
-color: var(--orange);
-}
-
-.add-game-dropdown-container {
-position: absolute;
-top: 85px;
-right: 5%;
-width: 100%;
-max-width: 420px;
-background: #080808;
-border: 2px solid var(--orange);
-border-radius: 20px;
-padding: 20px;
-z-index: 1000;
-box-shadow: 0 15px 35px rgba(0,0,0,0.9);
-}
-
-
-
-.search-results-box {
-position: absolute;
-background: #080808;
-border: 1px solid var(--orange);
-border-radius: 12px;
-width: 100%;
-max-width: 320px;
-z-index: 100;
-margin-top: 5px;
-max-height: 250px;
-overflow-y: auto;
-box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-}
-
-.search-result-item {
-padding: 12px 15px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-border-bottom: 1px solid #1a1a1a;
-cursor: pointer;
-transition: background 0.2s;
-}
-
-.search-result-item:hover {
-background: #151515;
-}
-
-
-
-@media(max-width:600px){
-.auth-card{
-padding: 20px 15px;
-}
-header{
-flex-direction:column;
-gap:20px;
-}
-.add-game-dropdown-container {
-right: 20px;
-left: 20px;
-max-width: none;
-}
-}
-
-
+:root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rubik', sans-serif; }
+body { background: var(--dark); color: white; min-height: 100vh; padding: 20px; }
+.hidden { display: none !important; }
+
+/* Contenedor de Autenticación */
+#auth-container { display: flex; align-items: center; justify-content: center; min-height: 90vh; }
+.auth-card {
+  width: 100%; max-width: 420px; background: #080808;
+  border: 2px solid var(--orange); border-radius: 30px; padding: 30px 20px; text-align: center;
+}
+h2 { font-family: 'Lilita One'; font-size: 2.5rem; margin-bottom: 20px; }
+.orange-title { color: var(--orange); }
+.cyan-title { color: var(--cyan); }
+input, select {
+  width: 100%; padding: 15px; margin: 10px 0; background: #111;
+  border: 1px solid #333; border-radius: 12px; color: white; text-align: center; font-size: 1rem;
+}
+textarea {
+  width: 100%; padding: 15px; margin: 10px 0; background: #111;
+  border: 1px solid #333; border-radius: 12px; color: white; text-align: left; font-size: 1rem; resize: vertical;
+}
+.btn-action {
+  width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 12px;
+  background: var(--orange); color: white; font-family: 'Lilita One'; font-size: 1.2rem; cursor: pointer;
+}
+.btn-action:hover { background: white; color: var(--orange); }
+.cyan-button { background: var(--cyan); color: black; }
+.link { display: block; margin-top: 15px; color: var(--cyan); cursor: pointer; font-size: 0.9rem; }
+.otp-input { border: 2px dashed var(--cyan); font-size: 1.5rem; letter-spacing: 8px; }
+
+/* Interfaz Principal */
+#main-container { max-width: 900px; margin: 0 auto; }
+header {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 4px solid var(--orange); padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+}
+header h1 { font-family: 'Lilita One'; font-size: 2.5rem; color: var(--orange); cursor: pointer; }
+
+.user-header-box { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+.user-avatar-container {
+  display: flex; align-items: center; gap: 10px; background: #111; padding: 5px 15px 5px 5px; border-radius: 50px; border: 1px solid #333;
+}
+.avatar-box {
+  width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #222;
+  display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid var(--cyan); cursor: pointer;
+}
+.avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-box span { font-size: 1.5rem; color: var(--cyan); font-family: 'Lilita One'; }
+.avatar-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+.verified-badge { width: 18px; height: 18px; vertical-align: middle; margin-left: 5px; }
+
+/* Navegación y Vistas */
+.nav-tabs { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; align-items: center; }
+.tab-btn { background: #111; border: 1px solid #333; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Lilita One'; font-size: 1.1rem; }
+.tab-btn.active { background: var(--orange); border-color: var(--orange); }
+.view-section { display: none; }
+.view-section.active-view { display: block; }
+
+/* Buscador de Usuarios */
+.user-search-box {
+  background: #080808; border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 25px;
+}
+.user-search-results { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; max-height: 200px; overflow-y: auto; }
+.user-search-item {
+  display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px 15px; border-radius: 10px; cursor: pointer; border: 1px solid #222;
+}
+.user-search-item:hover { border-color: var(--cyan); }
+
+/* Tienda y Admin */
+.store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.game-card { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; padding: 25px; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.game-card h3 { font-family: 'Lilita One'; font-size: 1.5rem; color: var(--cyan); }
+.download-btn { display: inline-block; width: 100%; padding: 12px; background: var(--orange); color: white; text-decoration: none; border-radius: 10px; font-family: 'Lilita One'; font-size: 1.1rem; text-align: center; }
+.ms-btn { background: #0078d4; }
+.admin-store-panel { background: #150000; border: 1px solid #ff4444; padding: 20px; border-radius: 15px; margin-bottom: 25px; }
+.payment-methods-box { background: #0a0a0a; border: 1px solid var(--cyan); padding: 20px; border-radius: 15px; margin-bottom: 25px; text-align: left; }
+
+/* Perfil de Usuario Externo / Propio */
+.profile-box { background: #080808; border: 2px solid var(--cyan); border-radius: 20px; padding: 30px; text-align: center; }
+.profile-avatar { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; margin: 0 auto 15px auto; border: 3px solid var(--orange); background: #111; display: flex; align-items: center; justify-content: center; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Comunidad y Posts */
+.post-creator { background: #080808; border: 2px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 30px; }
+.feed-container { display: flex; flex-direction: column; gap: 20px; }
+.post-card { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; padding: 20px; }
+.post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.post-media { width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin: 15px 0; }
+.post-actions { display: flex; gap: 15px; margin-top: 15px; align-items: center; flex-wrap: wrap; }
+.action-btn { background: none; border: 1px solid #444; color: white; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.action-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.comments-section { margin-top: 15px; border-top: 1px solid #222; padding-top: 15px; }
+.comment-item { background: #111; padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem; }
 </style>
-
 </head>
-
-
 <body>
 
+<!-- AUTENTICACIÓN -->
+<div id="auth-container">
+  <div id="view-login" class="auth-card">
+    <h2 class="orange-title">IDENTITY</h2>
+    <input id="login-user" placeholder="Username or Email" autocomplete="off">
+    <input id="login-pass" type="password" placeholder="Password">
+    <button id="btn-login" class="btn-action">LOGIN</button>
+    <span id="go-to-reg" class="link">Create Account</span>
+    <span id="go-to-recovery" class="link" style="color:var(--orange);">Forgot Password?</span>
+  </div>
 
-<div id="auth-system">
+  <div id="view-reg" class="auth-card hidden">
+    <h2 class="orange-title">SIGN UP</h2>
+    <input id="reg-user" placeholder="Username" autocomplete="off">
+    <input id="reg-mail" placeholder="Email" autocomplete="off">
+    <input id="reg-birth" type="date">
+    <button id="btn-send-code" class="btn-action">SEND CODE</button>
+    <div id="otp-container" class="hidden" style="margin-top: 15px;">
+      <input id="reg-code" class="otp-input" placeholder="000000" maxlength="6">
+      <button id="btn-verify-code" class="btn-action cyan-button">VERIFY CODE</button>
+    </div>
+    <span id="go-to-login-from-reg" class="link">Back to Login</span>
+  </div>
 
+  <div id="view-password" class="auth-card hidden">
+    <h2 class="cyan-title">NEW PASSWORD</h2>
+    <input id="reg-pass" type="password" placeholder="Password (min 6 chars)">
+    <input id="reg-pass-confirm" type="password" placeholder="Confirm Password">
+    <button id="btn-create-account" class="btn-action">FINISH SIGN UP</button>
+  </div>
 
-
-<!-- LOGIN -->
-
-<div id="view-start" class="auth-card">
-
-
-<h2 class="orange-title">
-IDENTITY
-</h2>
-
-
-<input id="id-input" placeholder="Username or Email">
-
-
-<input id="login-password" type="password" placeholder="Password">
-
-
-<button class="btn-action" onclick="login()">
-
-CONTINUE
-
-</button>
-
-
-
-<div style="margin:20px;color:#444">
-
-OR
-
+  <div id="view-recovery" class="auth-card hidden">
+    <h2 class="cyan-title">RECOVERY</h2>
+    <input id="rec-mail" placeholder="Registered Email" autocomplete="off">
+    <button id="btn-send-rec-code" class="btn-action">SEND RECOVERY CODE</button>
+    <div id="rec-otp-container" class="hidden" style="margin-top: 15px;">
+      <input id="rec-code" class="otp-input" placeholder="000000" maxlength="6">
+      <input id="rec-new-pass" type="password" placeholder="New Password">
+      <button id="btn-verify-rec-code" class="btn-action cyan-button">CHANGE PASSWORD</button>
+    </div>
+    <span id="go-to-login-from-rec" class="link">Back to Login</span>
+  </div>
 </div>
 
-
-<div id="google-login"></div>
-
-
-
-<span class="link" onclick="show('view-reg')">
-
-Register Account
-
-</span>
-
-
-<span class="link" onclick="show('view-recovery')">
-
-Forgot Password?
-
-</span>
-
-
-</div>
-
-
-
-
-
-<!-- REGISTER -->
-
-
-<div id="view-reg" class="auth-card hidden">
-
-
-<h2 class="orange-title">
-SIGN UP
-</h2>
-
-
-<input id="reg-user" placeholder="Username">
-
-
-<input id="reg-mail" placeholder="Email">
-
-
-<input id="reg-birth" type="date">
-
-
-<button class="btn-action" onclick="sendCode()">
-
-SEND CODE
-
-</button>
-
-
-
-<div id="verify-box" class="hidden">
-
-
-<input id="reg-code" class="otp-input" placeholder="000000">
-
-
-<button class="btn-action cyan-button" onclick="verifyCode()">
-
-VERIFY CODE
-
-</button>
-
-
-</div>
-
-
-
-<span class="link" onclick="show('view-start')">
-
-Back
-
-</span>
-
-
-</div>
-
-
-<!-- CREATE PASSWORD -->
-
-<div id="view-password" class="auth-card hidden">
-
-
-<h2 class="cyan-title">
-CREATE PASSWORD
-</h2>
-
-
-<input 
-id="new-password" 
-type="password" 
-placeholder="New Password">
-
-
-<input 
-id="confirm-password" 
-type="password" 
-placeholder="Confirm Password">
-
-
-<button class="btn-action" onclick="createAccount()">
-
-CREATE ACCOUNT
-
-</button>
-
-
-</div>
-
-
-
-
-
-<!-- RECOVERY -->
-
-
-<div id="view-recovery" class="auth-card hidden">
-
-
-<h2 class="cyan-title">
-
-RECOVERY
-
-</h2>
-
-
-<input 
-id="recover-email"
-placeholder="Email">
-
-
-<button 
-class="btn-action"
-onclick="sendRecovery()">
-
-SEND CODE
-
-</button>
-
-
-
-<div id="recover-box" class="hidden">
-
-
-<input 
-id="recover-code"
-class="otp-input"
-placeholder="000000">
-
-
-<input 
-id="recover-new-pass"
-type="password"
-placeholder="New Password">
-
-
-
-<button 
-class="btn-action cyan-button"
-onclick="changePassword()">
-
-CHANGE PASSWORD
-
-</button>
-
-
-</div>
-
-
-
-<span class="link" onclick="show('view-start')">
-
-Back
-
-</span>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<!-- VAULT -->
-
-
-<main id="vault-ui">
-
-
-<header style="position: relative;">
-
-
-<h1 onclick="goHome()">
-THE VAULT
-</h1>
-
-
-<div class="user-controls">
-
-<div id="admin-add-game-header-container"></div>
-
-<button id="nav-switch-btn" class="nav-switch-btn" onclick="toggleMainView()">COMMUNITY</button>
-
-<div class="user-display-container" onclick="navigateToProfile(currentUser.username)">
-<div class="user-avatar-box" id="header-avatar-box" title="Change Avatar" onclick="event.stopPropagation()">
-<span id="avatar-fallback">+</span>
-<img id="avatar-img" class="hidden" alt="Avatar">
-<input type="file" id="avatar-file-input" accept="image/*" onchange="uploadAvatar(this)">
-</div>
-<span id="user-display" class="username-text"></span>
-</div>
-
-
-<button onclick="logout()">
-
-LOGOUT
-
-</button>
-
-
-</div>
-
-
-</header>
-
-
-
-<!-- VISTA STORE -->
-<div id="view-store" class="views-container active-view">
-<div class="store-box" style="margin-top:30px;">
+<!-- INTERFAZ PRINCIPAL -->
+<main id="main-container" class="hidden">
+  <header>
+    <h1 onclick="window.goHome()">STRANGE WORLD</h1>
+    <div class="user-header-box">
+      <div class="user-avatar-container">
+        <div class="avatar-box" id="header-avatar-box" title="Cambiar avatar">
+          <span id="avatar-fallback">+</span>
+          <img id="avatar-img" class="hidden" alt="Avatar">
+          <input type="file" id="avatar-file-input" accept="image/*">
+        </div>
+        <span id="header-username" style="font-weight: bold; font-size: 1rem; cursor:pointer;" onclick="window.openMyProfile()"></span>
+      </div>
+      <button id="btn-logout" class="action-btn" style="border-color: #ff4444; color: #ff4444;">LOGOUT</button>
+    </div>
+  </header>
+
+  <!-- Buscador global de usuarios -->
+  <div class="user-search-box">
+    <input id="global-user-search" placeholder="🔍 Buscar usuario en Strange World..." autocomplete="off" oninput="window.handleUserSearch(this.value)">
+    <div id="global-user-results" class="user-search-results hidden"></div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="window.switchTab('store')">STORE</button>
+    <button class="tab-btn" onclick="window.switchTab('community')">COMMUNITY</button>
+    <button id="btn-request-verification" class="action-btn hidden" style="background:var(--cyan); color:black; width:auto; padding:10px 20px; margin:0;" onclick="window.openVerificationModal()">Solicitar Verificación 🛡️</button>
+  </div>
+
+  <!-- TIENDA -->
+  <div id="section-store" class="view-section active-view">
     
-<div id="store-games-grid" class="store-grid"></div>
+    <!-- Controles exclusivos para StrangeWorld (Admin) -->
+    <div id="strange-admin-controls" class="hidden" style="margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="action-btn" style="background:var(--cyan); color:black; width:auto; padding:12px 25px; margin:0;" onclick="window.toggleAddGamePanel()">Add Game +</button>
+      <button class="action-btn" style="background:#222; border:1px solid var(--cyan); color:var(--cyan); width:auto; padding:12px 25px; margin:0;" onclick="window.togglePaymentPanel()">Configurar Pagos 💳</button>
+    </div>
 
-</div>
-</div>
+    <!-- Panel Oculto para Añadir Juego -->
+    <div id="strange-store-admin" class="admin-store-panel hidden">
+      <h3 style="color:var(--orange); font-family:'Lilita One'; margin-bottom:10px;">Creator Store Panel - Nuevo Juego</h3>
+      <input id="new-game-title" placeholder="Game Title">
+      <input id="new-game-url" placeholder="Direct Download Link (URL)">
+      <input id="new-game-ms-url" placeholder="Microsoft Store Link (URL)">
+      
+      <label style="font-size:0.9rem; color:#aaa; display:block; margin-top:10px; text-align:left;">Estado de Disponibilidad:</label>
+      <select id="new-game-status">
+        <option value="available">Available Now</option>
+        <option value="coming">Coming Soon</option>
+      </select>
 
+      <label style="font-size:0.9rem; color:#aaa; display:block; margin-top:10px; text-align:left;">Clasificación por Edades (IARC / PEGI):</label>
+      <select id="new-game-age">
+        <option value="ACB / Supervisión parental (PG)">ACB / Supervisión parental (PG)</option>
+        <option value="CCC / 8 Años o más">CCC / 8 Años o más</option>
+        <option value="DGSC / Terror (12+)">DGSC / Terror (12+)</option>
+        <option value="DJCTQ / 10 Miedo">DJCTQ / 10 Miedo</option>
+        <option value="ESRB / Mayores de 10">ESRB / Mayores de 10</option>
+        <option value="GAMR / 12 Gmedia">GAMR / 12 Gmedia</option>
+        <option value="IARC / Mayores de 7">IARC / Mayores de 7</option>
+        <option value="Microsoft / Mayores de 7">Microsoft / Mayores de 7</option>
+        <option value="PCBP / Mayores de 6">PCBP / Mayores de 6</option>
+        <option value="PEGI / Mayores de 7">PEGI / Mayores de 7</option>
+        <option value="USK / Mayores de 12">USK / Mayores de 12</option>
+      </select>
 
+      <label style="font-size:0.9rem; color:#aaa; display:block; margin-top:10px; text-align:left;">Modelo de Pago:</label>
+      <select id="new-game-pricing">
+        <option value="free">Gratis (Free)</option>
+        <option value="paid">De pago (Paid)</option>
+      </select>
 
-<!-- VISTA COMMUNITY -->
-<div id="view-community" class="views-container">
-<div class="main-layout">
+      <input id="new-game-price" placeholder="Precio (Ej: $4.99)" style="display:none;">
 
-<aside class="sidebar">
-<h3>COMMUNITY</h3>
-<div style="margin-bottom: 20px; position: relative;">
-<input id="friend-search-input" placeholder="Search user..." style="margin-bottom: 0px; font-size: 0.9rem; padding: 10px;" oninput="handleUserSearchInput(this.value)" autocomplete="off">
-<div id="search-results-container" class="search-results-box hidden"></div>
-<button class="btn-action" style="margin-top:8px; padding: 10px; font-size: 1rem;" onclick="sendFriendRequestFromInput()">Add Friend</button>
-</div>
+      <button class="action-btn" style="background:var(--orange); border:none; width:100%; margin-top:10px; padding:12px;" onclick="window.addGame()">Guardar y Publicar Juego</button>
+    </div>
 
-<h4 style="color:var(--orange); margin-bottom: 10px; font-size: 1rem;">Friend Requests</h4>
-<div id="requests-container"></div>
+    <!-- Panel Oculto Configuración de Pagos -->
+    <div id="strange-payment-admin" class="payment-methods-box hidden">
+      <h3 style="color:var(--cyan); font-family:'Lilita One'; margin-bottom:10px;">Configurar Mis Métodos de Cobro</h3>
+      <input id="pay-paypal" placeholder="Correo o Enlace de PayPal.me">
+      <input id="pay-gpay" placeholder="Correo / ID de Google Pay">
+      <input id="pay-card" placeholder="Número de Tarjeta (VISA / MasterCard) o Pasarela">
+      <button class="action-btn cyan-button" style="margin-top:5px; padding:10px; font-size:1rem;" onclick="window.savePaymentMethods()">Guardar Métodos de Pago</button>
+    </div>
 
-<h4 style="color:var(--cyan); margin-bottom: 10px; font-size: 1rem; margin-top: 20px;">Friends List</h4>
-<div id="friends-container"></div>
-</aside>
+    <div id="store-games-grid" class="store-grid"></div>
+  </div>
 
+  <!-- COMUNIDAD -->
+  <div id="section-community" class="view-section">
+    <div class="post-creator">
+      <textarea id="post-text" rows="3" placeholder="What's happening in Strange World? Share text, photos or videos..."></textarea>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <input type="file" id="post-media-file" accept="image/*,video/*" style="width: auto; margin: 0; background: none; border: none; padding: 0;">
+        <button id="btn-create-post" class="btn-action" style="width: auto; padding: 10px 25px; margin-top: 0;">POST</button>
+      </div>
+    </div>
+    <div id="feed-container" class="feed-container"></div>
+  </div>
 
-<div class="content-feed">
-
-<div id="profile-header-container" class="hidden"></div>
-
-<div id="post-creator-box" class="post-creator">
-<textarea id="post-text-content" rows="3" placeholder="What's happening in Strange World? Share text, photos or videos..."></textarea>
-<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-<input type="file" id="post-media-file" accept="image/*,video/*">
-<button class="btn-action" style="width: auto; padding: 10px 25px; margin-top: 0;" onclick="createPost()">POST</button>
-</div>
-</div>
-
-
-<div id="feed-posts-container" class="feed-container"></div>
-
-</div>
-
-</div>
-</div>
-
-
-
+  <!-- VISTA DE PERFIL DE USUARIO (#user/nombre) -->
+  <div id="section-profile" class="view-section">
+    <div class="profile-box" id="profile-content-box"></div>
+  </div>
 </main>
 
-
-
-
-
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/analytics.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCH1zFMTERRa-UfjhtBvpIvTb3r3GNhTfY",
-  authDomain: "strangeworld-84ea7.firebaseapp.com",
-  projectId: "strangeworld-84ea7",
-  storageBucket: "strangeworld-84ea7.firebasestorage.app",
-  messagingSenderId: "85741297859",
-  appId: "1:85741297859:web:e7dbee985bc6adacfcc276",
-  measurementId: "G-NSEVDMRW3S"
-};
-
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
+<script>
 const EMAIL_PUBLIC_KEY = "yUvWoq451Lb_sn__9";
 const EMAIL_SERVICE = "service_oyw7kda";
 const TEMPLATE_REGISTER = "template_ec1vtkq";
 const TEMPLATE_RECOVERY = "template_5ym9ghb";
-
-const MICROSOFT_LOGO_SVG = '<img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" class="microsoft-logo" alt="Microsoft">';
 const VERIFIED_BADGE_HTML = '<img src="Creator.png" class="verified-badge" alt="Verified">';
 
 emailjs.init(EMAIL_PUBLIC_KEY);
 
-let registerCode = null;
-let recoveryCode = null;
-let tempUser = null;
+let generatedOtp = "";
+let recoveryOtp = "";
+let pendingUserData = {};
+let recoveryEmailTarget = "";
 let currentUser = null;
-let currentActiveView = "store";
-let viewingProfileUser = null;
 
-function detectUserDevice() {
-let ua = navigator.userAgent || navigator.vendor || window.opera;
-if (/android/i.test(ua)) return "Android";
-if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "iOS";
-if (/windows phone/i.test(ua)) return "Windows Phone";
-if (/macintosh|mac os x/i.test(ua)) return "Mac";
-if (/windows/i.test(ua)) return "PC";
-if (/linux/i.test(ua)) return "Linux";
-return "PC";
+const viewLogin = document.getElementById("view-login");
+const viewReg = document.getElementById("view-reg");
+const viewPassword = document.getElementById("view-password");
+const viewRecovery = document.getElementById("view-recovery");
+const authContainer = document.getElementById("auth-container");
+const mainContainer = document.getElementById("main-container");
+
+document.getElementById("new-game-pricing").addEventListener("change", (e) => {
+  const priceInput = document.getElementById("new-game-price");
+  if (e.target.value === "paid") {
+    priceInput.style.display = "block";
+  } else {
+    priceInput.style.display = "none";
+    priceInput.value = "";
+  }
+});
+
+function getUsers() {
+  const data = localStorage.getItem("UsersDB");
+  if (!data) return [];
+  try { return JSON.parse(atob(data)); } catch { return []; }
 }
+function saveUsers(users) { localStorage.setItem("UsersDB", btoa(JSON.stringify(users))); }
+
+function getPosts() {
+  const data = localStorage.getItem("PostsDB");
+  if (!data) return [];
+  try { return JSON.parse(data); } catch { return []; }
+}
+function savePosts(posts) { localStorage.setItem("PostsDB", JSON.stringify(posts)); }
+
+function getGames() {
+  const data = localStorage.getItem("GamesDB");
+  if (!data) return [{ 
+    id: "1", 
+    title: "Sub-Zero Frontier", 
+    downloadUrl: "https://github.com", 
+    msUrl: "https://apps.microsoft.com", 
+    status: "available", 
+    ageRating: "USK / Mayores de 12",
+    pricing: "free", 
+    price: "" 
+  }];
+  try { return JSON.parse(data); } catch { return []; }
+}
+function saveGames(games) { localStorage.setItem("GamesDB", JSON.stringify(games)); }
+
+function getPaymentSettings() {
+  const data = localStorage.getItem("PaymentSettingsDB");
+  if (!data) return { paypal: "", gpay: "", card: "" };
+  try { return JSON.parse(data); } catch { return { paypal: "", gpay: "", card: "" }; }
+}
+function savePaymentSettings(settings) { localStorage.setItem("PaymentSettingsDB", JSON.stringify(settings)); }
+
+// Buscador de usuarios global
+window.handleUserSearch = function(query) {
+  const resultsBox = document.getElementById("global-user-results");
+  const q = query.trim().toLowerCase();
+  if (!q) {
+    resultsBox.classList.add("hidden");
+    resultsBox.innerHTML = "";
+    return;
+  }
+
+  const users = getUsers();
+  const filtered = users.filter(u => u.username.toLowerCase().includes(q));
+
+  if (filtered.length === 0) {
+    resultsBox.innerHTML = '<div style="padding:10px; color:#aaa; text-align:center;">No se encontraron usuarios</div>';
+    resultsBox.classList.remove("hidden");
+    return;
+  }
+
+  let html = "";
+  filtered.forEach(u => {
+    const isVerified = u.verified || u.username === "StrangeWorld";
+    const badge = isVerified ? VERIFIED_BADGE_HTML : "";
+    html += `
+      <div class="user-search-item" onclick="window.selectSearchedUser('${u.username}')">
+        <span><strong>${u.username}</strong> ${badge}</span>
+        <span style="font-size:0.8rem; color:var(--cyan);">Ver Perfil</span>
+      </div>
+    `;
+  });
+
+  resultsBox.innerHTML = html;
+  resultsBox.classList.remove("hidden");
+};
+
+window.selectSearchedUser = function(username) {
+  document.getElementById("global-user-search").value = "";
+  document.getElementById("global-user-results").classList.add("hidden");
+  window.openUserProfile(username);
+};
+
+// Funciones de despliegue para Admin
+window.toggleAddGamePanel = function() {
+  const panel = document.getElementById("strange-store-admin");
+  panel.classList.toggle("hidden");
+};
+
+window.togglePaymentPanel = function() {
+  const panel = document.getElementById("strange-payment-admin");
+  panel.classList.toggle("hidden");
+};
+
+// Navegación de Auth
+document.getElementById("go-to-reg").addEventListener("click", () => { viewLogin.classList.add("hidden"); viewReg.classList.remove("hidden"); });
+document.getElementById("go-to-login-from-reg").addEventListener("click", () => { viewReg.classList.add("hidden"); viewLogin.classList.remove("hidden"); });
+document.getElementById("go-to-recovery").addEventListener("click", () => { viewLogin.classList.add("hidden"); viewRecovery.classList.remove("hidden"); });
+document.getElementById("go-to-login-from-rec").addEventListener("click", () => { viewRecovery.classList.add("hidden"); viewLogin.classList.remove("hidden"); });
+
+window.goHome = function() {
+  history.pushState({}, "", window.location.pathname);
+  window.switchTab('store');
+};
+
+window.switchTab = function(tabName) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".view-section").forEach(s => s.classList.remove("active-view"));
+
+  if (tabName === 'store') {
+    document.querySelectorAll(".tab-btn")[0].classList.add("active");
+    document.getElementById("section-store").classList.add("active-view");
+    loadStore();
+  } else if (tabName === 'community') {
+    document.querySelectorAll(".tab-btn")[1].classList.add("active");
+    document.getElementById("section-community").classList.add("active-view");
+    loadFeed();
+  } else if (tabName === 'profile') {
+    document.getElementById("section-profile").classList.add("active-view");
+  }
+};
+
+document.getElementById("btn-login").addEventListener("click", () => {
+  const identifier = document.getElementById("login-user").value.trim();
+  const password = document.getElementById("login-pass").value;
+  if (!identifier || !password) { alert("Completa todos los campos."); return; }
+
+  const users = getUsers();
+  let foundUser = users.find(u => (u.username === identifier || u.email === identifier) && u.password === password);
+  if (!foundUser) { alert("Usuario o contraseña incorrectos."); return; }
+
+  if (foundUser.banned) {
+    alert("Tu cuenta ha sido baneada de Strange World.");
+    return;
+  }
+
+  loginSuccess(foundUser);
+});
+
+document.getElementById("btn-send-code").addEventListener("click", () => {
+  const username = document.getElementById("reg-user").value.trim();
+  const email = document.getElementById("reg-mail").value.trim();
+  const birth = document.getElementById("reg-birth").value;
+
+  if (!username || !email || !birth) { alert("Completa todos los campos."); return; }
+  const users = getUsers();
+  if (users.some(u => u.username === username)) { alert("El usuario ya existe."); return; }
+  if (users.some(u => u.email === email)) { alert("El correo ya está registrado."); return; }
+
+  generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  pendingUserData = { username, email, birth };
+
+  document.getElementById("btn-send-code").innerText = "SENDING...";
+  emailjs.send(EMAIL_SERVICE, TEMPLATE_REGISTER, { email, to_email: email, to_name: username, verification_code: generatedOtp })
+    .then(() => {
+      alert("¡Código enviado al correo!");
+      document.getElementById("btn-send-code").classList.add("hidden");
+      document.getElementById("otp-container").classList.remove("hidden");
+    })
+    .catch(() => {
+      alert("Error al enviar el correo.");
+      document.getElementById("btn-send-code").innerText = "SEND CODE";
+    });
+});
+
+document.getElementById("btn-verify-code").addEventListener("click", () => {
+  if (document.getElementById("reg-code").value.trim() !== generatedOtp) { alert("Código incorrecto."); return; }
+  viewReg.classList.add("hidden");
+  viewPassword.classList.remove("hidden");
+});
+
+document.getElementById("btn-create-account").addEventListener("click", () => {
+  const password = document.getElementById("reg-pass").value;
+  if (password.length < 6 || password !== document.getElementById("reg-pass-confirm").value) {
+    alert("Contraseña inválida o no coincide (mínimo 6 caracteres)."); return;
+  }
+
+  const users = getUsers();
+  const isStrange = pendingUserData.username === "StrangeWorld";
+  users.push({
+    username: pendingUserData.username,
+    email: pendingUserData.email,
+    birth: pendingUserData.birth,
+    password: password,
+    verified: isStrange ? true : false,
+    avatar: isStrange ? "Icon.png" : "",
+    friends: [],
+    friendRequests: [],
+    banned: false
+  });
+
+  saveUsers(users);
+  alert("¡Cuenta creada con éxito!");
+  viewPassword.classList.add("hidden");
+  viewLogin.classList.remove("hidden");
+});
+
+document.getElementById("btn-send-rec-code").addEventListener("click", () => {
+  const email = document.getElementById("rec-mail").value.trim();
+  if (!email) { alert("Ingresa tu correo."); return; }
+
+  const users = getUsers();
+  if (!users.some(u => u.email === email)) { alert("Este correo no está registrado."); return; }
+
+  recoveryEmailTarget = email;
+  recoveryOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  document.getElementById("btn-send-rec-code").innerText = "SENDING...";
+  emailjs.send(EMAIL_SERVICE, TEMPLATE_RECOVERY, { email: email, to_email: email, verification_code: recoveryOtp })
+    .then(() => {
+      alert("¡Código de recuperación enviado!");
+      document.getElementById("btn-send-rec-code").classList.add("hidden");
+      document.getElementById("rec-otp-container").classList.remove("hidden");
+    })
+    .catch(() => {
+      alert("Error al enviar correo de recuperación.");
+      document.getElementById("btn-send-rec-code").innerText = "SEND RECOVERY CODE";
+    });
+});
+
+document.getElementById("btn-verify-rec-code").addEventListener("click", () => {
+  const code = document.getElementById("rec-code").value.trim();
+  const newPass = document.getElementById("rec-new-pass").value;
+
+  if (code !== recoveryOtp) { alert("Código incorrecto."); return; }
+  if (newPass.length < 6) { alert("La contraseña debe tener al menos 6 caracteres."); return; }
+
+  let users = getUsers();
+  let userIndex = users.findIndex(u => u.email === recoveryEmailTarget);
+  if (userIndex > -1) {
+    users[userIndex].password = newPass;
+    saveUsers(users);
+    alert("¡Contraseña actualizada con éxito!");
+    viewRecovery.classList.add("hidden");
+    viewLogin.classList.remove("hidden");
+  }
+});
+
+function loginSuccess(user) {
+  currentUser = user;
+  localStorage.setItem("ActiveSession", user.username);
+  authContainer.classList.add("hidden");
+  mainContainer.classList.remove("hidden");
+  
+  updateHeaderProfile();
+
+  if (user.username === "StrangeWorld") {
+    document.getElementById("strange-admin-controls").classList.remove("hidden");
+    loadPaymentInputs();
+  } else {
+    if (!user.verified) {
+      document.getElementById("btn-request-verification").classList.remove("hidden");
+    }
+  }
+
+  checkUrlRoute();
+  window.addEventListener('popstate', checkUrlRoute);
+}
+
+function updateHeaderProfile() {
+  let headerName = currentUser.username;
+  if (currentUser.verified || currentUser.username === "StrangeWorld") headerName += VERIFIED_BADGE_HTML;
+  document.getElementById("header-username").innerHTML = headerName;
+
+  let avatarImg = document.getElementById("avatar-img");
+  let avatarFallback = document.getElementById("avatar-fallback");
+  let activeAvatar = currentUser.username === "StrangeWorld" && !currentUser.avatar ? "Icon.png" : currentUser.avatar;
+
+  if (activeAvatar) {
+    avatarImg.src = activeAvatar;
+    avatarImg.classList.remove("hidden");
+    avatarFallback.classList.add("hidden");
+  } else {
+    avatarImg.classList.add("hidden");
+    avatarFallback.classList.remove("hidden");
+  }
+}
+
+document.getElementById("avatar-file-input").addEventListener("change", async function(e) {
+  if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    try {
+      const { storage, ref, uploadBytes, getDownloadURL } = window.firebaseStorage;
+      const storageRef = ref(storage, `avatars/${currentUser.username}_${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      currentUser.avatar = downloadURL;
+      let users = getUsers();
+      let idx = users.findIndex(u => u.username === currentUser.username);
+      if (idx !== -1) {
+        users[idx].avatar = currentUser.avatar;
+        saveUsers(users);
+      }
+      updateHeaderProfile();
+      alert("¡Avatar actualizado con éxito mediante Firebase Storage!");
+    } catch (err) {
+      console.error(err);
+      alert("Error al subir imagen a Firebase Storage.");
+    }
+  }
+});
+
+document.getElementById("btn-logout").addEventListener("click", () => {
+  localStorage.removeItem("ActiveSession");
+  location.reload();
+});
+
+// Enrutador de URL para #user/nombre
+function checkUrlRoute() {
+  const hash = window.location.hash;
+  if (hash.startsWith("#user/")) {
+    const targetUsername = hash.replace("#user/", "");
+    loadUserProfile(targetUsername);
+  }
+}
+
+window.openMyProfile = function() {
+  history.pushState({}, "", `#user/${currentUser.username}`);
+  loadUserProfile(currentUser.username);
+};
+
+window.openUserProfile = function(username) {
+  history.pushState({}, "", `#user/${username}`);
+  loadUserProfile(username);
+};
+
+function loadUserProfile(username) {
+  const users = getUsers();
+  const profileUser = users.find(u => u.username === username);
+  const container = document.getElementById("profile-content-box");
+
+  if (!profileUser) {
+    container.innerHTML = `<h3 style="color:#ff4444;">Usuario no encontrado</h3><button class="action-btn" onclick="window.switchTab('store')">Volver a la Tienda</button>`;
+    window.switchTab('profile');
+    return;
+  }
+
+  const isSelf = currentUser.username === profileUser.username;
+  const isAdmin = currentUser.username === "StrangeWorld";
+  const isVerified = profileUser.verified || profileUser.username === "StrangeWorld";
+  const avatarSrc = profileUser.avatar || "";
+
+  let avatarHtml = avatarSrc ? `<img src="${avatarSrc}">` : `<span style="font-size:3rem; color:var(--cyan); font-family:'Lilita One';">${profileUser.username.charAt(0).toUpperCase()}</span>`;
+
+  // Calcular seguidores (amigos)
+  const followersCount = profileUser.friends ? profileUser.friends.length : 0;
+
+  // Botón de dar verificado exclusivo para StrangeWorld
+  let adminVerifySection = "";
+  if (isAdmin && !isSelf) {
+    const verifyText = profileUser.verified ? "Quitar Verificado ❌" : "Dar Verificado 🛡️";
+    adminVerifySection = `<div style="margin-top:15px;"><button class="action-btn cyan-button" onclick="window.toggleVerifyUser('${profileUser.username}')">${verifyText}</button></div>`;
+  }
+
+  let actionButtonsHtml = "";
+  if (!isSelf) {
+    const isFriend = profileUser.friends && profileUser.friends.includes(currentUser.username);
+    const hasSentRequest = profileUser.friendRequests && profileUser.friendRequests.includes(currentUser.username);
+
+    if (isFriend) {
+      actionButtonsHtml += `<button class="action-btn" style="background:#222; border-color:#00ff66; color:#00ff66;" disabled>Amigos / Seguidos 🤝</button>`;
+    } else if (hasSentRequest) {
+      actionButtonsHtml += `<button class="action-btn" style="background:#222; border-color:#ffcc00; color:#ffcc00;" disabled>Solicitud Enviada ⏳</button>`;
+    } else {
+      actionButtonsHtml += `<button class="action-btn cyan-button" onclick="window.sendFriendRequest('${profileUser.username}')">Añadir Amigo / Seguir ➕</button>`;
+    }
+  }
+
+  let adminBanSection = "";
+  if (isAdmin && !isSelf) {
+    const banText = profileUser.banned ? "Desbanear Usuario 🟢" : "Banear Usuario ⛔";
+    const banColor = profileUser.banned ? "#00ff66" : "#ff4444";
+    adminBanSection = `<div style="margin-top:15px;"><button class="action-btn" style="border-color:${banColor}; color:${banColor};" onclick="window.toggleBanUser('${profileUser.username}')">${banText}</button></div>`;
+  }
+
+  // Amigos visibles solo para el propio usuario o el admin
+  let friendsListSection = "";
+  if (isSelf || isAdmin) {
+    const friendsArr = profileUser.friends || [];
+    let friendsHtml = friendsArr.length > 0 ? friendsArr.map(f => `<span style="background:#111; padding:4px 10px; border-radius:6px; font-size:0.85rem; display:inline-block; margin:3px;">${f}</span>`).join('') : '<span style="color:#777; font-size:0.85rem;">Ningún amigo aún</span>';
+    friendsListSection = `
+      <div style="margin-top:20px; text-align:left; background:#111; padding:15px; border-radius:12px;">
+        <h4 style="color:var(--cyan); margin-bottom:8px;">Amigos (Privado / Visible para ti o Admin)</h4>
+        <div>${friendsHtml}</div>
+      </div>
+    `;
+  }
+
+  // Solicitudes de amistad recibidas si es el propio perfil
+  let friendRequestsSection = "";
+  if (isSelf && profileUser.friendRequests && profileUser.friendRequests.length > 0) {
+    let reqItems = "";
+    profileUser.friendRequests.forEach(reqName => {
+      reqItems += `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:8px; margin-top:5px;">
+          <span><strong>${reqName}</strong> quiere ser tu amigo</span>
+          <div style="display:flex; gap:5px;">
+            <button class="action-btn" style="background:#00ff66; color:black; padding:4px 10px;" onclick="window.acceptFriendRequest('${reqName}')">Aceptar</button>
+            <button class="action-btn" style="background:#ff4444; color:white; padding:4px 10px;" onclick="window.rejectFriendRequest('${reqName}')">Rechazar</button>
+          </div>
+        </div>
+      `;
+    });
+    friendRequestsSection = `
+      <div style="margin-top:25px; text-align:left; background:#111; padding:15px; border-radius:12px;">
+        <h4 style="color:var(--cyan); margin-bottom:10px;">Solicitudes de Amistad Pendientes</h4>
+        ${reqItems}
+      </div>
+    `;
+  }
+
+  // Cargar publicaciones del usuario
+  const allPosts = getPosts();
+  const userPosts = allPosts.filter(p => p.author === profileUser.username);
+  let userPostsHtml = "";
+  userPosts.forEach(p => {
+    userPostsHtml += `
+      <div style="background:#111; padding:12px; border-radius:10px; margin-top:10px; text-align:left; border:1px solid #222;">
+        <p style="color:#ddd; font-size:0.9rem;">${p.text || '[Contenido Multimedia]'}</p>
+        <span style="color:#555; font-size:0.75rem;">${new Date(p.timestamp).toLocaleDateString()}</span>
+      </div>
+    `;
+  });
+
+  container.innerHTML = `
+    <div class="profile-avatar">${avatarHtml}</div>
+    <h2 style="color:var(--cyan); font-family:'Lilita One';">${profileUser.username} ${isVerified ? VERIFIED_BADGE_HTML : ''}</h2>
+    <p style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">Correo: ${profileUser.email}</p>
+    <p style="color:var(--orange); font-weight:bold; font-size:1rem; margin-bottom:15px;">👥 Seguidores: ${followersCount}</p>
+    
+    <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+      ${actionButtonsHtml}
+    </div>
+    ${adminVerifySection}
+    ${adminBanSection}
+    ${friendsListSection}
+    ${friendRequestsSection}
+    
+    <div style="margin-top:25px; text-align:left; background:#0e0e0e; padding:15px; border-radius:12px; border:1px solid #333;">
+      <h4 style="color:var(--orange); margin-bottom:10px;">Publicaciones de ${profileUser.username}</h4>
+      ${userPostsHtml.length > 0 ? userPostsHtml : '<p style="color:#666; font-size:0.85rem;">No hay publicaciones.</p>'}
+    </div>
+
+    <div style="margin-top:20px;">
+      <button class="action-btn" style="background:#222; border-color:#444;" onclick="window.switchTab('store')">Volver a la Tienda</button>
+    </div>
+  `;
+
+  window.switchTab('profile');
+}
+
+// Dar/Quitar Verificado exclusivo de StrangeWorld
+window.toggleVerifyUser = function(username) {
+  if (currentUser.username !== "StrangeWorld") return;
+  let users = getUsers();
+  let userObj = users.find(u => u.username === username);
+  if (!userObj) return;
+
+  userObj.verified = !userObj.verified;
+  saveUsers(users);
+  alert(`El usuario ${username} ahora ${userObj.verified ? 'tiene' : 'no tiene'} el verificado.`);
+  loadUserProfile(username);
+};
+
+// Sistema de Amistades
+window.sendFriendRequest = function(targetUsername) {
+  let users = getUsers();
+  let target = users.find(u => u.username === targetUsername);
+  if (!target) return;
+
+  if (!target.friendRequests) target.friendRequests = [];
+  if (target.friendRequests.includes(currentUser.username)) {
+    alert("Ya has enviado una solicitud a este usuario.");
+    return;
+  }
+
+  target.friendRequests.push(currentUser.username);
+  saveUsers(users);
+  alert(`Solicitud de amistad enviada a ${targetUsername}.`);
+  loadUserProfile(targetUsername);
+};
+
+window.acceptFriendRequest = function(requesterName) {
+  let users = getUsers();
+  let myUserIndex = users.findIndex(u => u.username === currentUser.username);
+  let requesterIndex = users.findIndex(u => u.username === requesterName);
+
+  if (myUserIndex === -1 || requesterIndex === -1) return;
+
+  if (!users[myUserIndex].friends) users[myUserIndex].friends = [];
+  if (!users[requesterIndex].friends) users[requesterIndex].friends = [];
+
+  users[myUserIndex].friends.push(requesterName);
+  users[requesterIndex].friends.push(currentUser.username);
+
+  users[myUserIndex].friendRequests = users[myUserIndex].friendRequests.filter(name => name !== requesterName);
+
+  saveUsers(users);
+  currentUser = users[myUserIndex];
+  alert(`¡Ahora eres amigo de ${requesterName}!`);
+  loadUserProfile(currentUser.username);
+};
+
+window.rejectFriendRequest = function(requesterName) {
+  let users = getUsers();
+  let myUserIndex = users.findIndex(u => u.username === currentUser.username);
+  if (myUserIndex === -1) return;
+
+  users[myUserIndex].friendRequests = users[myUserIndex].friendRequests.filter(name => name !== requesterName);
+  saveUsers(users);
+  currentUser = users[myUserIndex];
+  alert("Solicitud rechazada.");
+  loadUserProfile(currentUser.username);
+};
+
+// Panel de Administración para Banear
+window.toggleBanUser = function(username) {
+  if (currentUser.username !== "StrangeWorld") return;
+  let users = getUsers();
+  let userObj = users.find(u => u.username === username);
+  if (!userObj) return;
+
+  userObj.banned = !userObj.banned;
+  saveUsers(users);
+  alert(`El usuario ${username} ha sido ${userObj.banned ? 'baneado' : 'desbaneado'}.`);
+  loadUserProfile(username);
+};
+
+// Formulario de Solicitud de Verificación
+window.openVerificationModal = function() {
+  const reason = prompt("Describe por qué deberías recibir la verificación oficial de creador en Strange World:");
+  if (reason && reason.trim() !== "") {
+    alert("¡Tu solicitud de verificación ha sido enviada al administrador (StrangeWorld) con éxito!");
+    document.getElementById("btn-request-verification").classList.add("hidden");
+  }
+};
+
+function loadPaymentInputs() {
+  const p = getPaymentSettings();
+  document.getElementById("pay-paypal").value = p.paypal || "";
+  document.getElementById("pay-gpay").value = p.gpay || "";
+  document.getElementById("pay-card").value = p.card || "";
+}
+
+window.savePaymentMethods = function() {
+  const paypal = document.getElementById("pay-paypal").value.trim();
+  const gpay = document.getElementById("pay-gpay").value.trim();
+  const card = document.getElementById("pay-card").value.trim();
+
+  savePaymentSettings({ paypal, gpay, card });
+  alert("¡Tus métodos de pago han sido guardados de forma segura!");
+};
+
+// --- TIENDA ---
+function loadStore() {
+  const games = getGames();
+  const grid = document.getElementById("store-games-grid");
+  grid.innerHTML = "";
+
+  if (games.length === 0) {
+    grid.innerHTML = '<p style="color:#555; text-align:center; grid-column:1/-1;">No hay juegos disponibles en la tienda.</p>';
+    return;
+  }
+
+  games.forEach(game => {
+    let deleteBtn = "";
+    if (currentUser.username === "StrangeWorld") {
+      deleteBtn = `<button class="action-btn" style="border-color:#ff4444; color:#ff4444; width:100%; margin-top:5px;" onclick="window.deleteGame('${game.id}')">Eliminar Juego</button>`;
+    }
+
+    let statusBadge = game.status === "coming" 
+      ? '<span style="color:#ffcc00; font-weight:bold; font-size:0.9rem;">⏳ Coming Soon</span>' 
+      : '<span style="color:#00e5ff; font-weight:bold; font-size:0.9rem;">🟢 Available Now</span>';
+
+    let ageBadge = `<span style="color:#aaa; font-size:0.85rem;">🛡️ Clasificación: <strong>${game.ageRating || 'USK / Mayores de 12'}</strong></span>`;
+
+    let pricingInfo = game.pricing === "paid" 
+      ? `<span style="color:#ff4444; font-weight:bold; font-size:0.9rem;">💰 De Pago ${game.price ? '(' + game.price + ')' : ''}</span>` 
+      : '<span style="color:#00ff66; font-weight:bold; font-size:0.9rem;">🎁 Gratis (Free)</span>';
+
+    let buttonsHtml = '';
+    if (game.status === "coming") {
+      buttonsHtml += `<button class="download-btn" style="background:#444; cursor:not-allowed;" disabled>Próximamente</button>`;
+    } else {
+      if (game.downloadUrl) {
+        buttonsHtml += `<a class="download-btn" href="${game.downloadUrl}" target="_blank">Descargar Directo</a>`;
+      }
+    }
+
+    if (game.msUrl) {
+      buttonsHtml += `<a class="download-btn ms-btn" href="${game.msUrl}" target="_blank">Microsoft Store</a>`;
+    }
+
+    if (game.pricing === "paid" && game.status !== "coming") {
+      buttonsHtml += `<button class="action-btn cyan-button" style="margin-top:5px;" onclick="window.buyGame('${game.title}')">Comprar Juego</button>`;
+    }
+
+    grid.innerHTML += `
+      <div class="game-card">
+        <h3>${game.title}</h3>
+        <div style="display:flex; flex-direction:column; gap:6px; background:#111; padding:10px; border-radius:10px; text-align:left;">
+          <div>${statusBadge}</div>
+          <div>${ageBadge}</div>
+          <div>${pricingInfo}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:5px;">
+          ${buttonsHtml}
+        </div>
+        ${deleteBtn}
+      </div>
+    `;
+  });
+}
+
+window.addGame = function() {
+  if (currentUser.username !== "StrangeWorld") return;
+  const title = document.getElementById("new-game-title").value.trim();
+  const downloadUrl = document.getElementById("new-game-url").value.trim();
+  const msUrl = document.getElementById("new-game-ms-url").value.trim();
+  const status = document.getElementById("new-game-status").value;
+  const ageRating = document.getElementById("new-game-age").value;
+  const pricing = document.getElementById("new-game-pricing").value;
+  const price = document.getElementById("new-game-price").value.trim();
+
+  if (!title) { alert("Ingresa el título del juego."); return; }
+
+  let games = getGames();
+  games.push({ 
+    id: Date.now().toString(), 
+    title, 
+    downloadUrl, 
+    msUrl, 
+    status, 
+    ageRating,
+    pricing, 
+    price 
+  });
+  saveGames(games);
+
+  document.getElementById("new-game-title").value = "";
+  document.getElementById("new-game-url").value = "";
+  document.getElementById("new-game-ms-url").value = "";
+  document.getElementById("new-game-price").value = "";
+  document.getElementById("strange-store-admin").classList.add("hidden");
+  loadStore();
+  alert("Juego añadido a la tienda con éxito.");
+};
+
+window.deleteGame = function(id) {
+  if (currentUser.username !== "StrangeWorld") return;
+  let games = getGames();
+  games = games.filter(g => g.id !== id);
+  saveGames(games);
+  loadStore();
+};
+
+window.buyGame = function(title) {
+  const p = getPaymentSettings();
+  if (!p.paypal && !p.gpay && !p.card) {
+    alert("El creador aún no ha configurado sus métodos de cobro. Inténtalo más tarde.");
+    return;
+  }
+  
+  let msg = `Vas a adquirir "${title}". Métodos de pago disponibles del creador:\n`;
+  if (p.paypal) msg += `\n• PayPal: ${p.paypal}`;
+  if (p.gpay) msg += `\n• Google Pay: ${p.gpay}`;
+  if (p.card) msg += `\n• Tarjeta / Pasarela: ${p.card}`;
+  
+  alert(msg + "\n\nContacta con el creador o efectúa el pago mediante los datos indicados.");
+};
+
+// --- COMUNIDAD ---
+document.getElementById("btn-create-post").addEventListener("click", async () => {
+  const text = document.getElementById("post-text").value.trim();
+  const fileInput = document.getElementById("post-media-file");
+
+  if (!text && fileInput.files.length === 0) { alert("Escribe algo o añade un archivo."); return; }
+
+  const savePostWithMedia = (mediaUrl, mediaType) => {
+    const posts = getPosts();
+    posts.unshift({
+      id: Date.now().toString(),
+      author: currentUser.username,
+      text: text,
+      mediaUrl: mediaUrl || "",
+      mediaType: mediaType || "",
+      likes: [],
+      comments: [],
+      timestamp: Date.now()
+    });
+    savePosts(posts);
+    document.getElementById("post-text").value = "";
+    fileInput.value = "";
+    loadFeed();
+  };
+
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    try {
+      const { storage, ref, uploadBytes, getDownloadURL } = window.firebaseStorage;
+      const storageRef = ref(storage, `posts/${currentUser.username}_${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      const mediaType = file.type.startsWith('video') ? 'video' : 'image';
+      savePostWithMedia(downloadURL, mediaType);
+    } catch (err) {
+      console.error(err);
+      alert("Error al subir archivo multimedia a Firebase Storage.");
+    }
+  } else {
+    savePostWithMedia(null, null);
+  }
+});
+
+function loadFeed() {
+  const posts = getPosts();
+  const users = getUsers();
+  const container = document.getElementById("feed-container");
+  container.innerHTML = "";
+
+  if (posts.length === 0) {
+    container.innerHTML = '<p style="color:#555; text-align:center;">No hay publicaciones aún.</p>';
+    return;
+  }
+
+  posts.forEach(post => {
+    const authorData = users.find(u => u.username === post.author);
+    const isVerified = authorData?.verified || post.author === "StrangeWorld";
+    const badge = isVerified ? VERIFIED_BADGE_HTML : "";
+    const mediaHtml = post.mediaUrl ? (post.mediaType === 'video' ? `<video src="${post.mediaUrl}" controls class="post-media"></video>` : `<img src="${post.mediaUrl}" class="post-media">`) : "";
+    
+    const hasLiked = post.likes.includes(currentUser.username);
+
+    let commentsHtml = '';
+    post.comments.forEach(c => {
+      commentsHtml += `<div class="comment-item"><strong style="cursor:pointer;" onclick="window.openUserProfile('${c.author}')">${c.author}:</strong> ${c.text}</div>`;
+    });
+
+    let adminDeletePost = "";
+    if (currentUser.username === "StrangeWorld") {
+      adminDeletePost = `<button class="action-btn" style="border-color:#ff4444; color:#ff4444; margin-left:auto;" onclick="window.deletePost('${post.id}')">Eliminar Post</button>`;
+    }
+
+    container.innerHTML += `
+      <div class="post-card">
+        <div class="post-header">
+          <div><strong style="cursor:pointer;" onclick="window.openUserProfile('${post.author}')">${post.author}</strong> ${badge}</div>
+          <span style="color:#555; font-size:0.8rem;">${new Date(post.timestamp).toLocaleDateString()}</span>
+        </div>
+        ${post.text ? `<div style="color:#ddd; margin-bottom:10px;">${post.text}</div>` : ""}
+        ${mediaHtml}
+        <div class="post-actions">
+          <button class="action-btn" onclick="window.toggleLike('${post.id}')">${hasLiked ? '❤️' : '🤍'} (${post.likes.length})</button>
+          ${adminDeletePost}
+        </div>
+        <div class="comments-section">
+          <div id="comments-list-${post.id}">${commentsHtml}</div>
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <input id="comment-input-${post.id}" placeholder="Escribe un comentario..." style="margin:0; padding:8px 12px; font-size:0.9rem;">
+            <button class="action-btn" onclick="window.addComment('${post.id}')">Comentar</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+window.toggleLike = function(postId) {
+  let posts = getPosts();
+  let post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  const index = post.likes.indexOf(currentUser.username);
+  if (index > -1) post.likes.splice(index, 1);
+  else post.likes.push(currentUser.username);
+
+  savePosts(posts);
+  loadFeed();
+};
+
+window.addComment = function(postId) {
+  const input = document.getElementById(`comment-input-${postId}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  let posts = getPosts();
+  let post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  post.comments.push({ author: currentUser.username, text: text, timestamp: Date.now() });
+  savePosts(posts);
+  loadFeed();
+};
+
+window.deletePost = function(postId) {
+  if (currentUser.username !== "StrangeWorld") return;
+  let posts = getPosts();
+  posts = posts.filter(p => p.id !== postId);
+  savePosts(posts);
+  loadFeed();
+};
 
 window.addEventListener("DOMContentLoaded", () => {
-let savedSession = localStorage.getItem("ActiveSessionUser");
-if(savedSession){
-let users = getUsers();
-let found = users.find(u => u.username === savedSession);
-if(found){
-currentUser = found;
-checkAndVerifyTesters(users);
-unlockVault();
-parseUrlRoute();
-}
-}
-
-window.addEventListener('popstate', () => {
-if(currentUser) {
-parseUrlRoute();
-}
+  const activeSession = localStorage.getItem("ActiveSession");
+  if (activeSession) {
+    const users = getUsers();
+    const found = users.find(u => u.username === activeSession);
+    if (found && !found.banned) loginSuccess(found);
+  }
 });
-});
-
-function checkAndVerifyTesters(users){
-let testers = ["StrangeWorld"];
-let updated = false;
-users.forEach(u => {
-if(testers.includes(u.username) && !u.verified){
-u.verified = true;
-updated = true;
-}
-if(u.username === "StrangeWorld" && !u.avatar){
-u.avatar = "Icon.png";
-updated = true;
-}
-});
-if(updated){
-saveUsers(users);
-}
-}
-
-function parseUrlRoute(){
-let hash = window.location.hash;
-let cleanHash = hash.replace("#", "").trim();
-if(cleanHash.startsWith("/")) {
-cleanHash = cleanHash.substring(1);
-}
-
-if(cleanHash && cleanHash.toLowerCase() !== "store"){
-viewingProfileUser = cleanHash;
-} else {
-viewingProfileUser = null;
-}
-loadCommunityData();
-loadFeed();
-}
-
-function navigateToProfile(username){
-viewingProfileUser = username;
-window.location.hash = `#${username}`;
-loadCommunityData();
-loadFeed();
-}
-
-function goHome(){
-viewingProfileUser = null;
-window.location.hash = "#";
-loadCommunityData();
-loadFeed();
-}
-
-window.navigateToProfile = navigateToProfile;
-window.goHome = goHome;
-
-function show(id){
-document.querySelectorAll(".auth-card").forEach(x=>{
-x.classList.add("hidden");
-});
-document.getElementById(id).classList.remove("hidden");
-}
-window.show = show;
-
-function toggleMainView(){
-let storeView = document.getElementById("view-store");
-let communityView = document.getElementById("view-community");
-let btn = document.getElementById("nav-switch-btn");
-
-if(currentActiveView === "store"){
-storeView.classList.remove("active-view");
-communityView.classList.add("active-view");
-btn.innerText = "STORE";
-currentActiveView = "community";
-} else {
-communityView.classList.remove("active-view");
-storeView.classList.add("active-view");
-btn.innerText = "COMMUNITY";
-currentActiveView = "store";
-}
-}
-window.toggleMainView = toggleMainView;
-
-function getUsers(){
-let data = localStorage.getItem("UsersDB");
-if(!data) return [];
-try{ return JSON.parse(atob(data)); }catch{ return []; }
-}
-
-function saveUsers(users){
-localStorage.setItem("UsersDB", btoa(JSON.stringify(users)));
-}
-
-function getPosts(){
-let data = localStorage.getItem("PostsDB");
-if(!data) return [];
-try{ return JSON.parse(data); }catch{ return []; }
-}
-
-function savePosts(posts){
-localStorage.setItem("PostsDB", JSON.stringify(posts));
-}
-
-function getGames(){
-let data = localStorage.getItem("GamesDB");
-if(!data) return [];
-try{ return JSON.parse(data); }catch{ return []; }
-}
-
-function saveGames(games){
-localStorage.setItem("GamesDB", JSON.stringify(games));
-}
-
-function sendCode(){
-let email = document.getElementById("reg-mail").value;
-let user = document.getElementById("reg-user").value;
-let birth = document.getElementById("reg-birth").value;
-
-if(!email || !user || !birth){
-alert("Complete all fields");
-return;
-}
-
-registerCode = Math.floor(100000 + Math.random()*900000).toString();
-tempUser = { username:user, email:email, birth:birth, friends:[], requests:[], bannedUntil: 0, avatar: "", verified: false };
-
-emailjs.send(
-EMAIL_SERVICE,
-TEMPLATE_REGISTER,
-{
-email: email,
-to_email: email,
-to_name: user,
-verification_code: registerCode
-}
-)
-.then(()=>{
-document.getElementById("verify-box").classList.remove("hidden");
-alert("Code sent");
-})
-.catch(err=>{
-console.log(err);
-alert("Email error");
-});
-}
-window.sendCode = sendCode;
-
-function verifyCode(){
-let code = document.getElementById("reg-code").value;
-if(code !== registerCode){
-alert("Invalid code");
-return;
-}
-show("view-password");
-}
-window.verifyCode = verifyCode;
-
-function createAccount(){
-let pass = document.getElementById("new-password").value;
-let confirm = document.getElementById("confirm-password").value;
-
-if(pass.length < 6){
-alert("Password minimum 6 characters");
-return;
-}
-if(pass !== confirm){
-alert("Passwords don't match");
-return;
-}
-
-let users = getUsers();
-if(users.some(u => u.username === tempUser.username)){
-alert("Username already taken");
-return;
-}
-
-let initialAvatar = tempUser.username === "StrangeWorld" ? "Icon.png" : "";
-let isVerified = tempUser.username === "StrangeWorld" ? true : false;
-
-users.push({
-username: tempUser.username,
-email: tempUser.email,
-birth: tempUser.birth,
-password: pass,
-friends: [],
-requests: [],
-bannedUntil: 0,
-avatar: initialAvatar,
-verified: isVerified
-});
-
-saveUsers(users);
-alert("Account created successfully. Your profile link is /Store/#" + tempUser.username);
-show("view-start");
-}
-window.createAccount = createAccount;
-
-function login(){
-let user = document.getElementById("id-input").value;
-let pass = document.getElementById("login-password").value;
-let users = getUsers();
-
-let found = users.find(x => (x.username === user || x.email === user) && x.password === pass);
-
-if(!found){
-alert("Invalid credentials");
-return;
-}
-
-if(found.bannedUntil && Date.now() < found.bannedUntil){
-let remaining = Math.ceil((found.bannedUntil - Date.now()) / 60000);
-alert("Your account is suspended. Try again in " + remaining + " minutes.");
-return;
-}
-
-checkAndVerifyTesters(users);
-currentUser = found;
-localStorage.setItem("ActiveSessionUser", currentUser.username);
-unlockVault();
-parseUrlRoute();
-}
-window.login = login;
-
-function sendRecovery(){
-let email = document.getElementById("recover-email").value;
-if(!email){
-alert("Email required");
-return;
-}
-
-recoveryCode = Math.floor(100000 + Math.random()*900000).toString();
-
-emailjs.send(
-EMAIL_SERVICE,
-TEMPLATE_RECOVERY,
-{
-email: email,
-to_email: email,
-verification_code: recoveryCode
-}
-)
-.then(()=>{
-document.getElementById("recover-box").classList.remove("hidden");
-alert("Recovery code sent");
-})
-.catch(err=>{
-console.log(err);
-alert("Email error");
-});
-}
-window.sendRecovery = sendRecovery;
-
-function changePassword(){
-let email = document.getElementById("recover-email").value;
-let code = document.getElementById("recover-code").value;
-let newPass = document.getElementById("recover-new-pass").value;
-
-if(code !== recoveryCode){
-alert("Invalid recovery code");
-return;
-}
-
-let users = getUsers();
-let index = users.findIndex(x => x.email === email);
-if(index === -1){
-alert("Account not found");
-return;
-}
-
-users[index].password = newPass;
-saveUsers(users);
-alert("Password changed successfully");
-show("view-start");
-}
-window.changePassword = changePassword;
-
-function unlockVault(){
-document.getElementById("auth-system").style.display="none";
-document.getElementById("vault-ui").classList.add("unlocked");
-
-renderUserProfile();
-renderStoreGames();
-}
-
-function renderUserProfile(){
-let displayName = currentUser.username;
-if(currentUser.verified){
-displayName += ` ${VERIFIED_BADGE_HTML}`;
-}
-document.getElementById("user-display").innerHTML = displayName;
-
-let avatarImg = document.getElementById("avatar-img");
-let avatarFallback = document.getElementById("avatar-fallback");
-
-let activeAvatar = currentUser.username === "StrangeWorld" && !currentUser.avatar ? "Icon.png" : currentUser.avatar;
-
-if(activeAvatar){
-avatarImg.src = activeAvatar;
-avatarImg.classList.remove("hidden");
-avatarFallback.classList.add("hidden");
-} else {
-avatarImg.classList.add("hidden");
-avatarFallback.classList.remove("hidden");
-}
-}
-
-function uploadAvatar(input){
-if(input.files && input.files[0]){
-let reader = new FileReader();
-reader.onload = function(e){
-let base64Image = e.target.result;
-currentUser.avatar = base64Image;
-
-let users = getUsers();
-let idx = users.findIndex(u => u.username === currentUser.username);
-if(idx !== -1){
-users[idx].avatar = base64Image;
-saveUsers(users);
-}
-
-renderUserProfile();
-loadFeed();
-};
-reader.readAsDataURL(input.files[0]);
-}
-}
-window.uploadAvatar = uploadAvatar;
-
-function logout(){
-localStorage.removeItem("ActiveSessionUser");
-location.reload();
-}
-window.logout = logout;
-
-function calculateAge(date){
-let birth = new Date(date);
-let today = new Date();
-let age = today.getFullYear() - birth.getFullYear();
-let month = today.getMonth() - birth.getMonth();
-if(month < 0 || (month === 0 && today.getDate() < birth.getDate())){
-age--;
-}
-return age;
-}
-
-function renderStoreGames(){
-let adminHeaderContainer = document.getElementById("admin-add-game-header-container");
-let gamesGrid = document.getElementById("store-games-grid");
-
-if(currentUser && currentUser.username === "StrangeWorld"){
-adminHeaderContainer.innerHTML = `
-<button class="add-game-header-btn" onclick="toggleAddGameDropdown(event)">Add Game+</button>
-<div id="add-game-dropdown" class="add-game-dropdown-container hidden" onclick="event.stopPropagation()">
-<h3 style="font-family:'Lilita One'; color:var(--orange); margin-bottom:15px;">Añadir Nuevo Juego</h3>
-<input id="new-game-title" placeholder="Nombre del juego a añadir">
-<div style="display:flex; gap:10px; align-items:center; margin:10px 0;">
-<label style="color:#aaa; font-size:0.9rem;">Dispositivo:</label>
-<select id="new-game-device">
-<option value="PC">PC (Windows / Linux / Mac)</option>
-<option value="Android">Android</option>
-<option value="iOS">iOS</option>
-</select>
-</div>
-<div style="display:flex; gap:10px; align-items:center; margin:10px 0;">
-<label style="color:#aaa; font-size:0.9rem;">Estado:</label>
-<select id="new-game-status" onchange="toggleGameStatusInput(this.value)">
-<option value="available">Ya disponible</option>
-<option value="coming">Coming Soon</option>
-</select>
-</div>
-<input id="new-game-url" placeholder="Enlace de descarga">
-<div style="display:flex; gap:10px; align-items:center; margin:10px 0;">
-<input type="checkbox" id="new-game-has-ms" style="width:20px; height:20px;" onchange="document.getElementById('ms-url-box').classList.toggle('hidden', !this.checked)">
-<label for="new-game-has-ms" style="font-size:0.9rem; cursor:pointer;">Disponible para Microsoft</label>
-</div>
-<div id="ms-url-box" class="hidden">
-<input id="new-game-ms-url" placeholder="Enlace de descarga de Microsoft">
-</div>
-<div style="text-align:left; margin:10px 0;">
-<label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Logo del juego (Imagen):</label>
-<input type="file" id="new-game-logo-file" accept="image/*">
-</div>
-<button class="btn-action" onclick="publishNewGame()">Publicar Juego</button>
-</div>
-`;
-} else {
-adminHeaderContainer.innerHTML = "";
-}
-
-let games = getGames();
-let detectedDevice = detectUserDevice();
-
-let filteredGames = games.filter(game => {
-let gameDevice = game.device || "PC";
-return gameDevice.toLowerCase() === detectedDevice.toLowerCase();
-});
-
-gamesGrid.innerHTML = "";
-
-if(filteredGames.length === 0){
-gamesGrid.innerHTML = `<p style="color:#555; text-align:center; grid-column:1/-1;">No hay juegos disponibles para tu dispositivo (${detectedDevice}).</p>`;
-return;
-}
-
-filteredGames.forEach(game => {
-let downloadButtonsHtml = "";
-let ageValid = true;
-
-if(!currentUser || !currentUser.birth){
-downloadButtonsHtml = '<div class="age-denied">AGE VERIFICATION REQUIRED</div>';
-ageValid = false;
-} else {
-let age = calculateAge(currentUser.birth);
-if(age < 7){
-downloadButtonsHtml = '<div class="age-denied">ACCESS DENIED<br>IARC 7+ REQUIREMENT NOT MET</div>';
-ageValid = false;
-}
-}
-
-if(ageValid){
-if(game.status === "coming"){
-downloadButtonsHtml += `<button class="download-btn coming-soon" disabled>Coming Soon</button>`;
-} else {
-downloadButtonsHtml += `<button class="download-btn" onclick="window.location.href='${game.downloadUrl}'">Descargar (${game.device || 'PC'})</button>`;
-}
-
-if(game.hasMicrosoft && game.microsoftUrl){
-downloadButtonsHtml += `<button class="download-btn microsoft" onclick="window.location.href='${game.microsoftUrl}'">${MICROSOFT_LOGO_SVG} Microsoft</button>`;
-}
-}
-
-let adminDeleteBtn = "";
-if(currentUser && currentUser.username === "StrangeWorld"){
-adminDeleteBtn = `<button class="admin-btn" style="position:absolute; top:15px; right:15px;" onclick="deleteGame('${game.id}')">Eliminar</button>`;
-}
-
-let logoHtml = game.logo ? `<img src="${game.logo}" class="game-card-logo" alt="Logo">` : `<div class="game-card-logo" style="display:flex;align-items:center;justify-content:center;color:var(--cyan);font-family:'Lilita One';">+</div>`;
-
-gamesGrid.innerHTML += `
-<div class="game-card">
-${adminDeleteBtn}
-<div class="game-card-header">
-${logoHtml}
-<div>
-<h3>${game.title}</h3>
-<span style="color:#888; font-size:0.8rem;">Plataforma: ${game.device || 'PC'}</span>
-</div>
-</div>
-<div class="download-buttons-box">
-${downloadButtonsHtml}
-</div>
-</div>
-`;
-});
-}
-
-function toggleAddGameDropdown(e){
-e.stopPropagation();
-let dropdown = document.getElementById("add-game-dropdown");
-if(dropdown){
-dropdown.classList.toggle("hidden");
-}
-}
-window.toggleAddGameDropdown = toggleAddGameDropdown;
-
-window.addEventListener("click", () => {
-let dropdown = document.getElementById("add-game-dropdown");
-if(dropdown && !dropdown.classList.contains("hidden")){
-dropdown.classList.add("hidden");
-}
-});
-
-function toggleGameStatusInput(val){
-let urlInput = document.getElementById("new-game-url");
-if(val === "coming"){
-urlInput.classList.add("hidden");
-} else {
-urlInput.classList.remove("hidden");
-}
-}
-window.toggleGameStatusInput = toggleGameStatusInput;
-
-function publishNewGame(){
-let title = document.getElementById("new-game-title").value.trim();
-let device = document.getElementById("new-game-device").value;
-let status = document.getElementById("new-game-status").value;
-let downloadUrl = document.getElementById("new-game-url").value.trim();
-let hasMs = document.getElementById("new-game-has-ms").checked;
-let msUrl = document.getElementById("new-game-ms-url").value.trim();
-let logoInput = document.getElementById("new-game-logo-file");
-
-if(!title){
-alert("Introduce el nombre del juego");
-return;
-}
-
-if(status === "available" && !downloadUrl){
-alert("Introduce el enlace de descarga");
-return;
-}
-
-if(hasMs && !msUrl){
-alert("Introduce el enlace de descarga de Microsoft");
-return;
-}
-
-let saveGameData = (logoBase64) => {
-try {
-let games = getGames();
-let newGame = {
-id: Date.now().toString(),
-title: title,
-device: device,
-status: status,
-downloadUrl: status === "coming" ? "" : downloadUrl,
-hasMicrosoft: hasMs,
-microsoftUrl: hasMs ? msUrl : "",
-logo: logoBase64 || ""
-};
-games.push(newGame);
-saveGames(games);
-renderStoreGames();
-alert("¡Juego publicado con éxito!");
-} catch(err) {
-console.error(err);
-alert("Error al guardar: La imagen es demasiado pesada para el almacenamiento local.");
-}
-};
-
-if(logoInput.files && logoInput.files[0]){
-let reader = new FileReader();
-reader.onload = function(e){
-saveGameData(e.target.result);
-};
-reader.readAsDataURL(logoInput.files[0]);
-} else {
-saveGameData("");
-}
-}
-window.publishNewGame = publishNewGame;
-
-function deleteGame(gameId){
-if(!currentUser || currentUser.username !== "StrangeWorld") return;
-if(!confirm("¿Seguro que deseas eliminar este juego?")) return;
-
-let games = getGames();
-games = games.filter(g => g.id !== gameId);
-saveGames(games);
-renderStoreGames();
-}
-window.deleteGame = deleteGame;
-
-function handleUserSearchInput(query){
-let container = document.getElementById("search-results-container");
-if(!query.trim()){
-container.classList.add("hidden");
-container.innerHTML = "";
-return;
-}
-
-let users = getUsers();
-let q = query.toLowerCase();
-
-let scoredUsers = users.map(u => {
-let uLower = u.username.toLowerCase();
-let score = 0;
-if(uLower === q) score = 100;
-else if(uLower.startsWith(q)) score = 50;
-else if(uLower.includes(q)) score = 25;
-return { user: u, score: score };
-}).filter(item => item.score > 0);
-
-scoredUsers.sort((a, b) => b.score - a.score);
-
-if(scoredUsers.length === 0){
-container.innerHTML = '<div style="padding:10px; color:#777; text-align:center; font-size:0.85rem;">No users found</div>';
-container.classList.remove("hidden");
-return;
-}
-
-let html = "";
-scoredUsers.forEach(item => {
-let u = item.user;
-let avatarSrc = u.avatar || (u.username === "StrangeWorld" ? "Icon.png" : "");
-let avatarHtml = avatarSrc ? `<img src="${avatarSrc}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;">` : `<span style="color:var(--cyan);font-family:'Lilita One';">+</span>`;
-let badge = u.verified ? VERIFIED_BADGE_HTML : "";
-
-html += `
-<div class="search-result-item" onclick="selectSearchResult('${u.username}')">
-<div style="display:flex; align-items:center; gap:8px;">
-${avatarHtml}
-<span style="font-weight:bold; font-size:0.9rem;">${u.username} ${badge}</span>
-</div>
-<span style="color:var(--cyan); font-size:0.75rem;">View</span>
-</div>
-`;
-});
-
-container.innerHTML = html;
-container.classList.remove("hidden");
-}
-window.handleUserSearchInput = handleUserSearchInput;
-
-function selectSearchResult(username){
-document.getElementById("friend-search-input").value = username;
-document.getElementById("search-results-container").classList.add("hidden");
-navigateToProfile(username);
-}
-window.selectSearchResult = selectSearchResult;
-
-function sendFriendRequestFromInput(){
-let targetName = document.getElementById("friend-search-input").value.trim();
-if(!targetName || targetName === currentUser.username){
-alert("Invalid username");
-return;
-}
-
-let users = getUsers();
-let targetUser = users.find(u => u.username === targetName);
-if(!targetUser){
-alert("User not found");
-return;
-}
-
-if(targetUser.friends && targetUser.friends.includes(currentUser.username)){
-alert("You are already friends");
-return;
-}
-
-if(targetUser.requests && targetUser.requests.includes(currentUser.username)){
-alert("Request already sent");
-return;
-}
-
-if(!targetUser.requests) targetUser.requests = [];
-targetUser.requests.push(currentUser.username);
-saveUsers(users);
-document.getElementById("friend-search-input").value = "";
-document.getElementById("search-results-container").classList.add("hidden");
-alert("Friend request sent!");
-}
-window.sendFriendRequestFromInput = sendFriendRequestFromInput;
-
-function loadCommunityData(){
-let users = getUsers();
-let current = users.find(u => u.username === currentUser.username);
-if(!current) return;
-currentUser = current;
-
-let reqContainer = document.getElementById("requests-container");
-reqContainer.innerHTML = "";
-if(!current.requests || current.requests.length === 0){
-reqContainer.innerHTML = '<p style="color:#555; font-size:0.85rem;">No requests</p>';
-} else {
-current.requests.forEach(req => {
-reqContainer.innerHTML += `
-<div class="request-item">
-<span>${req}</span>
-<button onclick="acceptRequest('${req}')">Accept</button>
-</div>
-`;
-});
-}
-
-let friendContainer = document.getElementById("friends-container");
-friendContainer.innerHTML = "";
-if(!current.friends || current.friends.length === 0){
-friendContainer.innerHTML = '<p style="color:#555; font-size:0.85rem;">No friends yet</p>';
-} else {
-current.friends.forEach(f => {
-friendContainer.innerHTML += `
-<div class="friend-item" style="cursor:pointer;" onclick="navigateToProfile('${f}')">
-<span>${f}</span>
-<span style="color:var(--cyan); font-size:0.8rem;">Profile</span>
-</div>
-`;
-});
-}
-}
-
-function acceptRequest(fromUser){
-let users = getUsers();
-let current = users.find(u => u.username === currentUser.username);
-let sender = users.find(u => u.username === fromUser);
-
-current.requests = current.requests.filter(r => r !== fromUser);
-if(!current.friends) current.friends = [];
-current.friends.push(fromUser);
-
-if(sender){
-if(!sender.friends) sender.friends = [];
-sender.friends.push(current.username);
-}
-
-saveUsers(users);
-loadCommunityData();
-}
-window.acceptRequest = acceptRequest;
-
-function toggleVerifyUser(username){
-if(currentUser.username !== "StrangeWorld") return;
-if(!confirm(`¿Deseas cambiar el estado de verificación para ${username}?`)) return;
-
-let users = getUsers();
-let target = users.find(u => u.username === username);
-if(target){
-target.verified = !target.verified;
-saveUsers(users);
-loadFeed();
-alert(`Estado de verificación actualizado para ${username}.`);
-}
-}
-window.toggleVerifyUser = toggleVerifyUser;
-
-function createPost(){
-let text = document.getElementById("post-text-content").value.trim();
-let fileInput = document.getElementById("post-media-file");
-
-if(!text && fileInput.files.length === 0){
-alert("Write something or attach media");
-return;
-}
-
-let handleFile = (mediaUrl, mediaType) => {
-try {
-let posts = getPosts();
-let newPost = {
-id: Date.now().toString(),
-author: currentUser.username,
-text: text,
-mediaUrl: mediaUrl || "",
-mediaType: mediaType || "",
-likes: [],
-comments: [],
-timestamp: Date.now()
-};
-
-posts.unshift(newPost);
-savePosts(posts);
-
-document.getElementById("post-text-content").value = "";
-document.getElementById("post-media-file").value = "";
-loadFeed();
-} catch(err) {
-console.error(err);
-alert("Error al publicar: El archivo multimedia es demasiado pesado para el almacenamiento local.");
-}
-};
-
-if(fileInput.files.length > 0){
-let file = fileInput.files[0];
-let reader = new FileReader();
-let mType = file.type.startsWith('video') ? 'video' : 'image';
-reader.onload = function(e){
-handleFile(e.target.result, mType);
-};
-reader.readAsDataURL(file);
-} else {
-handleFile(null, null);
-}
-}
-window.createPost = createPost;
-
-function loadFeed(){
-let posts = getPosts();
-let users = getUsers();
-let container = document.getElementById("feed-posts-container");
-let profileHeaderContainer = document.getElementById("profile-header-container");
-let postCreatorBox = document.getElementById("post-creator-box");
-
-if(viewingProfileUser){
-let targetUserObj = users.find(u => u.username.toLowerCase() === viewingProfileUser.toLowerCase());
-
-if(targetUserObj){
-posts = posts.filter(p => p.author.toLowerCase() === targetUserObj.username.toLowerCase());
-let isStrangeworld = (currentUser.username === "StrangeWorld");
-let emailInfo = isStrangeworld ? `<br><span style="color:var(--orange); font-size:0.9rem;">Correo: ${targetUserObj.email}</span>` : "";
-let verifyBtnText = targetUserObj.verified ? "Quitar Verificado" : "Dar Verificado";
-let verifyBtnColor = targetUserObj.verified ? "#ff4444" : "var(--cyan)";
-let verifyBtn = isStrangeworld ? `<button class="admin-btn" style="background:${verifyBtnColor}; color:${targetUserObj.verified?'white':'black'}; margin-left:15px;" onclick="toggleVerifyUser('${targetUserObj.username}')">${verifyBtnText}</button>` : "";
-
-let avatarSrc = targetUserObj.avatar || (targetUserObj.username === "StrangeWorld" ? "Icon.png" : "");
-let avatarHtml = avatarSrc ? `<img src="${avatarSrc}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--cyan);">` : `<div style="width:80px;height:80px;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;color:var(--cyan);font-family:'Lilita One';font-size:2rem;">+</div>`;
-
-let badge = targetUserObj.verified ? VERIFIED_BADGE_HTML : "";
-
-let formButtonHtml = "";
-if(!targetUserObj.verified){
-formButtonHtml = `<br><a href="https://docs.google.com/forms/d/e/1FAIpQLScANUJ7apjClHCrNsYr0p1nQ8V1AKd_ziw3fC89h12M5O0w8w/viewform?usp=publish-editor" target="_blank" class="btn-action" style="background:var(--cyan); color:black; text-decoration:none; display:inline-block; text-align:center; padding:8px 15px; margin-top:10px; font-size:0.9rem; width:auto;">Solicitar Verificación / Formulario</a>`;
-}
-
-profileHeaderContainer.innerHTML = `
-<div class="post-card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; background:#080808; border:1px solid var(--orange);">
-<div style="display:flex; align-items:center; gap:20px;">
-${avatarHtml}
-<div>
-<h2 style="font-family:'Lilita One'; font-size:2rem; display:flex; align-items:center; gap:8px;">
-${targetUserObj.username} ${badge} ${verifyBtn}
-</h2>
-<span style="color:#777; font-size:0.9rem;">Enlace: /Store/#${targetUserObj.username}</span>
-${emailInfo}
-${formButtonHtml}
-</div>
-</div>
-<button class="btn-action" style="width:auto; padding:8px 20px; margin-top:0;" onclick="goHome()">Volver al Feed</button>
-</div>
-`;
-profileHeaderContainer.classList.remove("hidden");
-} else {
-profileHeaderContainer.innerHTML = `<div class="post-card"><p style="color:#ff5555; text-align:center;">Usuario no encontrado</p></div>`;
-profileHeaderContainer.classList.remove("hidden");
-container.innerHTML = "";
-return;
-}
-
-if(viewingProfileUser.toLowerCase() !== currentUser.username.toLowerCase()){
-postCreatorBox.classList.add("hidden");
-} else {
-postCreatorBox.classList.remove("hidden");
-}
-
-} else {
-profileHeaderContainer.innerHTML = "";
-profileHeaderContainer.classList.add("hidden");
-postCreatorBox.classList.remove("hidden");
-}
-
-container.innerHTML = "";
-
-if(posts.length === 0){
-container.innerHTML = '<p style="color:#555; text-align:center;">No posts found.</p>';
-return;
-}
-
-posts.forEach(post => {
-let isLiked = post.likes && post.likes.includes(currentUser.username);
-let authorData = users.find(u => u.username.toLowerCase() === post.author.toLowerCase());
-let authorAvatar = authorData && authorData.avatar ? authorData.avatar : (post.author === "StrangeWorld" ? "Icon.png" : "");
-
-let authorAvatarHtml = authorAvatar 
-  ? `<img src="${authorAvatar}" class="post-avatar" alt="Avatar">` 
-  : `<div class="post-avatar" style="display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:var(--cyan);font-family:'Lilita One';">+</div>`;
-
-let authorDisplay = post.author;
-if(authorData && authorData.verified){
-authorDisplay += ` ${VERIFIED_BADGE_HTML}`;
-}
-
-let mediaHtml = "";
-if(post.mediaUrl){
-if(post.mediaType === 'video'){
-mediaHtml = `<video src="${post.mediaUrl}" controls class="post-media"></video>`;
-} else {
-mediaHtml = `<img src="${post.mediaUrl}" class="post-media" alt="Post media">`;
-}
-}
-
-let adminHtml = "";
-if(currentUser.username === "StrangeWorld"){
-adminHtml = `
-<div class="admin-panel">
-<span style="color:#ff8888; font-weight:bold; font-size:0.80rem;">Creator Control:</span>
-<button class="admin-btn" onclick="adminDeletePost('${post.id}')">Delete Post</button>
-<button class="admin-btn" onclick="adminDeleteUserPosts('${post.author}')">Delete All by User</button>
-<button class="admin-btn" onclick="adminPromptBanUser('${post.author}')">Ban User</button>
-</div>
-`;
-}
-
-let commentsHtml = "";
-if(post.comments && post.comments.length > 0){
-post.comments.forEach((c) => {
-let cAuthorData = users.find(u => u.username.toLowerCase() === c.author.toLowerCase());
-let cAvatar = cAuthorData && cAuthorData.avatar ? cAuthorData.avatar : (c.author === "StrangeWorld" ? "Icon.png" : "");
-let cAvatarHtml = cAvatar 
-  ? `<img src="${cAvatar}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;" alt="Avatar">` 
-  : `<span style="color:var(--cyan);font-family:'Lilita One';font-size:0.8rem;">[+]</span>`;
-
-let cAuthorDisplay = c.author;
-if(cAuthorData && cAuthorData.verified){
-cAuthorDisplay += ` ${VERIFIED_BADGE_HTML}`;
-}
-commentsHtml += `
-<div class="comment-item">
-<div onclick="navigateToProfile('${c.author}')" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-${cAvatarHtml}
-<strong>${cAuthorDisplay}:</strong>
-</div>
-<span>${c.text}</span>
-</div>
-`;
-});
-}
-
-container.innerHTML += `
-<div class="post-card">
-<div class="post-header">
-<div class="post-author" onclick="navigateToProfile('${post.author}')">${authorAvatarHtml} ${authorDisplay}</div>
-<span style="color:#555; font-size:0.8rem;">${new Date(post.timestamp).toLocaleDateString()}</span>
-</div>
-${post.text ? `<div class="post-text">${post.text}</div>` : ""}
-${mediaHtml}
-<div class="post-actions">
-<button class="action-btn ${isLiked ? 'active' : ''}" onclick="toggleLike('${post.id}')">
-❤️ <span>${post.likes ? post.likes.length : 0}</span> Likes
-</button>
-</div>
-${adminHtml}
-<div class="comments-section">
-<div style="font-size:0.9rem; font-weight:bold; margin-bottom:8px; color:#aaa;">Comments</div>
-<div id="comments-list-${post.id}">
-${commentsHtml}
-</div>
-<div class="comment-form">
-<input id="comment-input-${post.id}" placeholder="Write a comment...">
-<button onclick="addComment('${post.id}')">Send</button>
-</div>
-</div>
-</div>
-`;
-});
-}
-
-function toggleLike(postId){
-let posts = getPosts();
-let post = posts.find(p => p.id === postId);
-if(!post) return;
-
-if(!post.likes) post.likes = [];
-let index = post.likes.indexOf(currentUser.username);
-if(index === -1){
-post.likes.push(currentUser.username);
-} else {
-post.likes.splice(index, 1);
-}
-
-savePosts(posts);
-loadFeed();
-}
-window.toggleLike = toggleLike;
-
-function addComment(postId){
-let input = document.getElementById(`comment-input-${postId}`);
-let text = input.value.trim();
-if(!text) return;
-
-let posts = getPosts();
-let post = posts.find(p => p.id === postId);
-if(!post) return;
-
-if(!post.comments) post.comments = [];
-post.comments.push({
-author: currentUser.username,
-text: text,
-timestamp: Date.now()
-});
-
-savePosts(posts);
-input.value = "";
-loadFeed();
-}
-window.addComment = addComment;
-
-function adminDeletePost(postId){
-if(currentUser.username !== "StrangeWorld") return;
-if(!confirm("Are you sure you want to delete this post?")) return;
-
-let posts = getPosts();
-posts = posts.filter(p => p.id !== postId);
-savePosts(posts);
-loadFeed();
-}
-window.adminDeletePost = adminDeletePost;
-
-function adminDeleteUserPosts(username){
-if(currentUser.username !== "StrangeWorld") return;
-if(!confirm("Delete all posts from user: " + username + "?")) return;
-
-let posts = getPosts();
-posts = posts.filter(p => p.author !== username);
-savePosts(posts);
-loadFeed();
-}
-window.adminDeleteUserPosts = adminDeleteUserPosts;
-
-function adminPromptBanUser(username){
-if(currentUser.username !== "StrangeWorld") return;
-if(username === "StrangeWorld"){
-alert("You cannot ban yourself!");
-return;
-}
-
-let input = prompt(`Introduce el tiempo de baneo para ${username}:\n- Escribe un número seguido de m (minutos), h (horas), d (días)\n- O escribe "permanente" / "perpetuo" para baneo permanente.`);
-if(!input) return;
-
-input = input.trim().toLowerCase();
-let banDurationMs = 0;
-
-if(input === "permanente" || input === "perpetuo" || input === "perm"){
-banDurationMs = 86400000 * 365 * 100;
-} else {
-let value = parseInt(input);
-if(isNaN(value) || value <= 0){
-alert("Formato de tiempo inválido.");
-return;
-}
-if(input.endsWith('m')){
-banDurationMs = value * 60000;
-} else if(input.endsWith('h')){
-banDurationMs = value * 3600000;
-} else if(input.endsWith('d')){
-banDurationMs = value * 86400000;
-} else {
-banDurationMs = value * 60000;
-}
-}
-
-let users = getUsers();
-let target = users.find(u => u.username.toLowerCase() === username.toLowerCase());
-if(target){
-target.bannedUntil = Date.now() + banDurationMs;
-saveUsers(users);
-alert(`User ${username} has been banned.`);
-}
-}
-window.adminPromptBanUser = adminPromptBanUser;
-
 </script>
-
-
 </body>
-
 </html>
