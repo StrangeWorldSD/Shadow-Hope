@@ -1,204 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Strange World | Secure Vault & DRM</title>
 
-    <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
+<meta charset="UTF-8">
 
-    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<title>Strange World | Secure Vault</title>
 
-    <link rel="stylesheet" href="style.css">
+
+<link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
+
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+
+<script 
+src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">
+</script>
+
+
+<link rel="stylesheet" href="style.css">
+
+
 </head>
+
+
 
 <body>
 
+
 <div id="auth-system">
 
-    <!-- LOGIN -->
-    <div id="view-start" class="auth-card">
 
-        <h2 class="orange-title">IDENTITY</h2>
+<!-- =========================
+        LOGIN
+========================= -->
 
-        <input 
-            type="text" 
-            id="id-input" 
-            placeholder="Username or Email">
 
-        <button class="btn-action" onclick="goToPassword()">
-            CONTINUE
-        </button>
+<div id="view-start" class="auth-card">
 
 
-        <div class="separator">OR</div>
+<h2 class="orange-title">
+IDENTITY
+</h2>
 
 
-        <div id="g_id_onload"
-             data-client_id="976725715682-qn73g5lfndmj0uvgboq5t75kfgchqn9u.apps.googleusercontent.com"
-             data-callback="handleGoogle">
-        </div>
 
-        <div class="g_id_signin"
-             data-type="standard"
-             data-theme="filled_black">
-        </div>
+<input
+type="text"
+id="id-input"
+placeholder="Username or Email">
 
 
-        <span class="link" onclick="switchView('view-reg')">
-            Register Account
-        </span>
 
-    </div>
+<input
+type="password"
+id="login-password"
+placeholder="Password">
 
 
 
-    <!-- PASSWORD -->
-    <div id="view-pass" class="auth-card hidden">
+<button
+class="btn-action"
+onclick="finalizeLogin()">
 
-        <h2 class="cyan-title">
-            PASSWORD
-        </h2>
+CONTINUE
 
-        <p id="target-display"></p>
+</button>
 
 
-        <input 
-            type="password"
-            id="pass-field"
-            placeholder="••••••••">
 
 
-        <button class="btn-action" onclick="finalizeLogin()">
-            ENTER VAULT
-        </button>
+<div class="separator">
+OR
+</div>
 
 
-        <span class="link" onclick="switchView('view-start')">
-            Back
-        </span>
 
-    </div>
 
+<div id="g_id_onload"
 
+data-client_id="976725715682-qn73g5lfndmj0uvgboq5t75kfgchqn9u.apps.googleusercontent.com"
 
-    <!-- REGISTER -->
-    <div id="view-reg" class="auth-card hidden">
+data-callback="handleGoogle">
 
-        <h2 class="orange-title">
-            SIGN UP
-        </h2>
+</div>
 
 
-        <div id="reg-form">
 
+<div class="g_id_signin"
 
-            <input 
-                type="text"
-                id="reg-user"
-                placeholder="Username">
+data-type="standard"
 
+data-theme="filled_black">
 
-            <input
-                type="email"
-                id="reg-mail"
-                placeholder="Email">
+</div>
 
 
-            <label class="birth-label">
-                Date of Birth
-            </label>
 
 
-            <input
-                type="date"
-                id="reg-birth">
+<span 
+class="link"
+onclick="switchView('view-reg')">
 
+Register Account
 
-            <button
-                class="btn-action"
-                id="btn-send-reg"
-                onclick="sendRegisterCode()">
+</span>
 
-                SEND CODE
 
-            </button>
 
+<span
+class="link"
+onclick="switchView('view-recovery')">
 
-        </div>
+Forgot Password?
 
+</span>
 
-
-        <div id="reg-verify" class="hidden">
-
-
-            <p class="small-text">
-                Enter the 6-digit verification code sent to your email
-            </p>
-
-
-            <input
-                type="text"
-                id="reg-otp"
-                maxlength="6"
-                class="otp-input"
-                placeholder="000000">
-
-
-            <button
-                class="btn-action cyan-button"
-                onclick="verifyRegisterCode()">
-
-                VERIFY & CREATE
-
-            </button>
-
-
-        </div>
-
-
-        <span class="link" onclick="switchView('view-start')">
-            Back to Login
-        </span>
-
-
-    </div>
-
-
-
-    <!-- PASSWORD RECOVERY -->
-
-    <div id="view-recovery" class="auth-card hidden">
-
-        <h2 class="cyan-title">
-            RECOVERY
-        </h2>
-
-
-        <input
-            type="email"
-            id="recover-mail"
-            placeholder="Account Email">
-
-
-        <button
-            class="btn-action"
-            onclick="sendRecoveryCode()">
-
-            SEND RECOVERY CODE
-
-        </button>
-
-
-        <span class="link" onclick="switchView('view-start')">
-            Back
-        </span>
-
-
-    </div>
 
 
 </div>
@@ -207,25 +130,293 @@
 
 
 
-<!-- VAULT -->
+<!-- =========================
+        PASSWORD LOGIN ERROR / INFO
+========================= -->
+
+
+<div id="login-message"></div>
+
+
+
+
+
+<!-- =========================
+        REGISTER
+========================= -->
+
+
+<div id="view-reg" class="auth-card hidden">
+
+
+<h2 class="orange-title">
+
+SIGN UP
+
+</h2>
+
+
+
+
+<input
+type="text"
+id="reg-user"
+placeholder="Username">
+
+
+
+<input
+type="email"
+id="reg-mail"
+placeholder="Email Address">
+
+
+
+<label class="birth-label">
+
+Date of Birth
+
+</label>
+
+
+
+<input
+type="date"
+id="reg-birth">
+
+
+
+
+
+<button
+
+class="btn-action"
+
+onclick="sendRegisterCode()">
+
+SEND CODE
+
+</button>
+
+
+
+
+
+
+<div id="reg-verify" class="hidden">
+
+
+
+<p class="small-text">
+
+Enter the 6-digit code sent to your email
+
+</p>
+
+
+
+<input
+
+type="text"
+
+id="reg-otp"
+
+class="otp-input"
+
+placeholder="000000"
+
+maxlength="6">
+
+
+
+
+
+<button
+
+class="btn-action cyan-button"
+
+onclick="verifyRegisterCode()">
+
+VERIFY CODE
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<span
+
+class="link"
+
+onclick="switchView('view-start')">
+
+Back to Login
+
+</span>
+
+
+
+</div>
+
+
+
+
+
+<!-- =========================
+        CREATE PASSWORD
+========================= -->
+
+
+<div id="password-create" class="auth-card hidden">
+
+
+
+<h2 class="cyan-title">
+
+CREATE PASSWORD
+
+</h2>
+
+
+
+
+<input
+
+type="password"
+
+id="new-password"
+
+placeholder="Create Password">
+
+
+
+<input
+
+type="password"
+
+id="confirm-password"
+
+placeholder="Confirm Password">
+
+
+
+
+
+<button
+
+class="btn-action"
+
+onclick="finishRegistration()">
+
+COMPLETE ACCOUNT
+
+</button>
+
+
+
+
+
+</div>
+
+
+
+
+
+<!-- =========================
+        RECOVERY
+========================= -->
+
+
+<div id="view-recovery" class="auth-card hidden">
+
+
+
+<h2 class="cyan-title">
+
+RECOVERY
+
+</h2>
+
+
+
+
+<input
+
+type="email"
+
+id="recover-mail"
+
+placeholder="Account Email">
+
+
+
+
+
+<button
+
+class="btn-action"
+
+onclick="sendRecoveryCode()">
+
+SEND RECOVERY CODE
+
+</button>
+
+
+
+
+
+<span
+
+class="link"
+
+onclick="switchView('view-start')">
+
+Back
+
+</span>
+
+
+
+</div>
+
+
+<!-- CONTINÚA EN PARTE 2/2 -->
+    <!-- =========================
+        VAULT
+========================= -->
+
 
 <main id="vault-ui">
 
 
+
 <header>
+
 
 <h1>
 THE VAULT
 </h1>
 
 
+
 <div class="user-controls">
+
 
 <span id="user-display"></span>
 
 
+
 <button onclick="logout()">
+
 LOGOUT
+
 </button>
 
 
@@ -238,30 +429,56 @@ LOGOUT
 
 
 
+
+
 <section class="store-box">
+
 
 
 <div class="game-card">
 
 
+
 <h3>
+
 SHADOW HOPE
+
 </h3>
 
 
+
+
 <p>
+
 Official Setup.exe for Windows
+
 <br>
+
 IARC 7+ Classification
+
 </p>
 
 
+
+
+
+
 <!-- 
-     VACÍO INTENCIONAL
-     El botón será creado por JavaScript
+    VACÍO INTENCIONAL
+    
+    JavaScript insertará aquí:
+    - botón descarga si edad >= 7
+    - bloqueo si edad < 7
+
 -->
 
+
+
 <div id="dynamicDownloadArea"></div>
+
+
+
+
 
 
 </div>
@@ -272,7 +489,10 @@ IARC 7+ Classification
 
 
 
+
 </main>
+
+
 
 
 
@@ -281,5 +501,8 @@ IARC 7+ Classification
 <script src="script.js"></script>
 
 
+
+
 </body>
+
 </html>
