@@ -2,173 +2,284 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store | Strange World</title>
-    
-    <link rel="icon" type="image/png" href="https://ibb.co">
-    <link href="https://googleapis.com" rel="stylesheet">
-    
-    <!-- SDKs -->
-    <script src="https://google.com" async defer></script>
-    <script type="text/javascript" src="https://jsdelivr.net"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Strange World | Secure Vault & DRM</title>
 
-    <style>
-        :root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; --card: #0a0a0a; }
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
-        body { background: var(--dark); color: #fff; font-family: 'Rubik', sans-serif; -webkit-user-select: none; user-select: none; }
-        
-        header { padding: 20px 8%; display: flex; justify-content: space-between; align-items: center; background: #000; border-bottom: 4px solid var(--orange); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-family: 'Lilita One'; font-size: 2rem; text-shadow: 2px 2px var(--orange); }
-        nav a { font-family: 'Lilita One'; color: #fff; text-decoration: none; margin-left: 25px; transition: 0.3s; }
-        nav a:hover, .active { color: var(--cyan); }
+    <link rel="icon" type="image/png" href="https://i.ibb.co/DPmtLPMj/Icon.png">
 
-        .fb-layout { display: flex; max-width: 1000px; margin: 60px auto; padding: 20px; align-items: center; justify-content: space-between; gap: 40px; }
-        .fb-left { flex: 1; text-align: left; }
-        .fb-left h1 { font-family: 'Lilita One'; font-size: 3.5rem; color: var(--orange); margin-bottom: 15px; }
-        .fb-left p { font-size: 1.3rem; color: #aaa; line-height: 1.5; }
-        
-        .fb-right { flex: 1; max-width: 420px; width: 100%; }
-        .auth-container { padding: 30px; background: var(--card); border-radius: 16px; border: 1px solid #1a1a1a; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;900&display=swap" rel="stylesheet">
 
-        input, select { width: 100%; padding: 14px; margin-bottom: 14px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 1rem; outline: none; }
-        input:focus, select:focus { border-color: var(--cyan); }
-        
-        .label-group { text-align: left; margin-bottom: 5px; color: #888; font-size: 0.85rem; padding-left: 4px; }
-        .btn { width: 100%; padding: 14px; background: var(--orange); border: none; border-radius: 8px; font-family: 'Lilita One'; color: #fff; font-size: 1.2rem; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
-        .btn:active { transform: scale(0.98); }
-        .btn-secondary { background: transparent; border: 1px solid #333; color: #aaa; margin-top: 10px; }
-        .btn-secondary:hover { border-color: var(--orange); color: #fff; }
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-        .divider { border-top: 1px solid #222; margin: 20px 0; padding-top: 20px; }
-        .hint { color: #666; font-size: 0.8rem; text-align: left; margin: -5px 0 15px 5px; line-height: 1.2; }
-
-        #loginSection, #registerSection, #otpSection, #passwordSetupSection, #storeContent { display: none; }
-
-        @media (max-width: 768px) {
-            .fb-layout { flex-direction: column; text-align: center; margin: 20px auto; }
-            .fb-left { text-align: center; }
-            .fb-left h1 { font-size: 2.5rem; }
-            .fb-left p { font-size: 1.1rem; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <header>
-        <div class="logo">STRANGE WORLD</div>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="AboutUs.html">About Us</a>
-            <a href="Community.html">Community</a>
-            <a href="Store.html" class="active">Store</a>
-        </nav>
-    </header>
+<div id="auth-system">
 
-    <div class="fb-layout" id="mainAuthBlock">
-        <div class="fb-left">
-            <h1>Strange World</h1>
-            <p>Traverse the glitch, survive the shadows, and unlock exclusive project intelligence terminal windows.</p>
+    <!-- LOGIN -->
+    <div id="view-start" class="auth-card">
+
+        <h2 class="orange-title">IDENTITY</h2>
+
+        <input 
+            type="text" 
+            id="id-input" 
+            placeholder="Username or Email">
+
+        <button class="btn-action" onclick="goToPassword()">
+            CONTINUE
+        </button>
+
+
+        <div class="separator">OR</div>
+
+
+        <div id="g_id_onload"
+             data-client_id="976725715682-qn73g5lfndmj0uvgboq5t75kfgchqn9u.apps.googleusercontent.com"
+             data-callback="handleGoogle">
         </div>
 
-        <div class="fb-right">
-            <div class="auth-container">
-                
-                <!-- LOGIN -->
-                <div id="loginSection">
-                    <input type="text" id="loginUserOrEmail" placeholder="Username or Email">
-                    <input type="password" id="loginPassword" placeholder="Password">
-                    <button class="btn" onclick="handleLogin()">Login</button>
-                    <div class="divider"></div>
-                    <button class="btn btn-secondary" onclick="switchForm('register')">Create a new account</button>
-                    <div style="margin-top: 25px;">
-                        <div id="g_id_onload" data-client_id="://googleusercontent.com" data-callback="handleGoogleLogin"></div>
-                        <div class="g_id_signin" data-type="standard"></div>
-                    </div>
-                </div>
-
-                <!-- REGISTRO -->
-                <div id="registerSection">
-                    <input type="text" id="regUsername" placeholder="Choose a Username">
-                    <input type="email" id="regEmail" placeholder="Email Address">
-                    <div class="label-group">Date of birth</div>
-                    <input type="date" id="regBirthdate" required>
-                    <button class="btn" onclick="startRegistration()">Get Verification Code</button>
-                    <div class="divider"></div>
-                    <button class="btn btn-secondary" onclick="switchForm('login')">Already have an account?</button>
-                    <div style="margin-top: 20px;">
-                        <div class="g_id_signin" data-type="standard" data-callback="handleGoogleRegister"></div>
-                    </div>
-                </div>
-
-                <!-- VERIFICACIÓN OTP -->
-                <div id="otpSection">
-                    <p style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 20px;">Code sent via system. Check your inbox.</p>
-                    <input type="text" id="otpInput" placeholder="6-DIGIT CODE" style="text-align: center; letter-spacing: 10px; font-size: 1.5rem;">
-                    <button class="btn" onclick="verifyOTP()">Verify Code</button>
-                    <button class="btn btn-secondary" onclick="location.reload()">Cancel</button>
-                </div>
-
-                <!-- ESTABLECER CONTRASEÑA -->
-                <div id="passwordSetupSection">
-                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">Set up a password to complete registration.</p>
-                    <input type="password" id="setupPassword" placeholder="New Password">
-                    <div class="hint">Must have at least 6 characters, 1 number, and 1 special symbol (*, #, @, etc.)</div>
-                    <button class="btn" onclick="saveNewUserPassword()">Finish Registration</button>
-                </div>
-
-            </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-theme="filled_black">
         </div>
+
+
+        <span class="link" onclick="switchView('view-reg')">
+            Register Account
+        </span>
+
     </div>
 
-    <!-- TIENDA DESBLOQUEADA SIN ENLACES INTERNOS -->
-    <div id="storeContent" class="auth-container" style="max-width: 600px; margin: 80px auto;">
-        <h2>STORE INTEL</h2>
-        <div style="background: #000; padding: 30px; border-radius: 20px; border: 1px dashed var(--orange); margin-top: 20px;">
-            <h3 style="font-family: 'Lilita One'; color: var(--cyan);">SHADOW HOPE I</h3>
-            <p style="color: #888; margin: 5px 0 15px 0;">Official Setup.exe for Windows. (IARC 7+ Classification)</p>
-            
-            <!-- El contenedor del botón se genera por código en tiempo de ejecución, no existe en el HTML original -->
-            <div id="dynamicDownloadArea"></div>
-        </div>
-        <a href="#" class="footer-link" onclick="logout()">Logout / Change Account</a>
+
+
+    <!-- PASSWORD -->
+    <div id="view-pass" class="auth-card hidden">
+
+        <h2 class="cyan-title">
+            PASSWORD
+        </h2>
+
+        <p id="target-display"></p>
+
+
+        <input 
+            type="password"
+            id="pass-field"
+            placeholder="••••••••">
+
+
+        <button class="btn-action" onclick="finalizeLogin()">
+            ENTER VAULT
+        </button>
+
+
+        <span class="link" onclick="switchView('view-start')">
+            Back
+        </span>
+
     </div>
 
-    <script>
-        // --- 🛡️ PROTECCIÓN ACTIVA ANTIDEBUGGER ---
-        (function() {
-            document.addEventListener('contextmenu', e => e.preventDefault());
-            document.addEventListener('keydown', e => {
-                if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85)) {
-                    e.preventDefault(); return false;
-                }
-            });
-            setInterval(function() { (function() { return false; })['constructor']('debugger')(); }, 100);
-        })();
 
-        // --- 🔑 OFUSCACIÓN DE ENLACES Y LLAVES (Fragmentación Hexadecimal) ---
-        // Tus credenciales y enlaces convertidos a cadenas desarmadas dinámicas
-        const _0x_srv = String.fromCharCode(115,101,114,118,105,99,101,95,111,121,119,55,107,100,97); // service_oyw7kda
-        const _0x_tmp = String.fromCharCode(116,101,109,112,108,97,116,101,95,101,99,49,118,116,107,113); // template_ec1vtkq
-        const _0x_pbl = String.fromCharCode(85,71,68,55,108,51,110,76,55,86,107,101,121,117,53,68,51); // UGD7l3nL7Vkeyu5D3
-        
-        // Enlace de descarga cortado y reconstruido al vuelo
-        const _0x_dwn = [
-            'h','t','t','p','s',':','/','/','g','i','t','h','u','b','.','c','o','m','/',
-            'S','t','r','a','n','g','e','W','o','r','l','d','S','H','/','S','h','a','d','o','w','-','H','o','p','e','/',
-            'r','e','l','e','a','s','e','s','/','d','o','w','n','l','o','a','d','/','1','.','0','/',
-            'S','h','a','d','o','w','_','H','o','p','e','_','I','_','S','e','t','u','p','.','e','x','e'
-        ].join('');
 
-        (function() { emailjs.init(_0x_pbl); })();
+    <!-- REGISTER -->
+    <div id="view-reg" class="auth-card hidden">
 
-        if (!localStorage.getItem('Users_txt')) {
-            const initialEncrypted = btoa("StrangeWorld. Password: 123456* shadowhopesh@gmail.com | Birth: 1995-01-01\n");
-            localStorage.setItem('Users_txt', initialEncrypted);
-        }
+        <h2 class="orange-title">
+            SIGN UP
+        </h2>
 
-        let generatedCode = null;
-        let tempUserSession = {};
 
-        function switchForm(form) {
-            if(form === 'login') {
-Usa el código con precaución.document.getElementById('loginSection').style.display = 'block';document.getElementById('registerSection').style.display = 'none';} else {document.getElementById('loginSection').style.display = 'none';document.getElementById('registerSection').style.display = 'block';}}function calculateAge(birthdateString) {if(!birthdateString) return 0;const today = new Date();const birthDate = new Date(birthdateString);let age = today.getFullYear() - birthDate.getFullYear();const monthDiff = today.getMonth() - birthDate.getMonth();if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) { age--; }return age;}function getUsersDatabase() {try {const encryptedText = localStorage.getItem('Users_txt') || "";const rawText = atob(encryptedText);const lines = rawText.split('\n');const users = [];lines.forEach(line => {if(line.trim() === "") return;const dotIndex = line.indexOf('.');const passLabelIndex = line.indexOf('. Password: ');const birthLabelIndex = line.indexOf(' | Birth: ');if (dotIndex !== -1 && passLabelIndex !== -1) {const username = line.substring(0, dotIndex).trim();let password = ""; let email = ""; let birthdate = "2000-01-01";if(birthLabelIndex !== -1) {const afterPass = line.substring(passLabelIndex + 12, birthLabelIndex);const spaceIndex = afterPass.indexOf(' ');password = afterPass.substring(0, spaceIndex).trim();email = afterPass.substring(spaceIndex + 1).trim();birthdate = line.substring(birthLabelIndex + 9).trim();} else {const afterPass = line.substring(passLabelIndex + 12);const spaceIndex = afterPass.indexOf(' ');password = afterPass.substring(0, spaceIndex).trim();email = afterPass.substring(spaceIndex + 1).trim();}users.push({ username, password, email, birthdate });}});return users;} catch(e) { return []; }}function appendUserToDatabase(username, password, email, birthdate) {try {const encryptedText = localStorage.getItem('Users_txt') || "";let rawText = atob(encryptedText);const newLine = ${username}. Password: ${password} ${email} | Birth: ${birthdate}\n;rawText += newLine;localStorage.setItem('Users_txt', btoa(rawText));} catch(e) {}}function startRegistration() {const username = document.getElementById('regUsername').value.trim();const email = document.getElementById('regEmail').value.trim();const birthdate = document.getElementById('regBirthdate').value;if(!username || !email.includes('@') || !birthdate) return alert("Please fill all fields accurately.");const database = getUsersDatabase();if(database.some(u => u.username.toLowerCase() === username.toLowerCase())) return alert("Username already taken.");if(database.some(u => u.email.toLowerCase() === email.toLowerCase())) return alert("Email already registered.");tempUserSession = { username, email, birthdate };generatedCode = Math.floor(100000 + Math.random() * 900000);const params = { to_name: username, to_email: email, verification_code: generatedCode };// Ejecución segura usando referencias de memoria encriptadasemailjs.send(_0x_srv, _0x_tmp, params).then(() => {document.getElementById('registerSection').style.display = 'none';document.getElementById('otpSection').style.display = 'block';}).catch(err => alert("Error processing communication token."));}function handleGoogleRegister(response) {try {const base64Url = response.credential.split('.');const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');const googleUser = JSON.parse(atob(base64));const database = getUsersDatabase();if(database.some(u => u.email.toLowerCase() === googleUser.email.toLowerCase())) {alert("Account registered. Routing to login.");return switchForm('login');}alert("To complete your profile under IARC 7+ metrics, please complete birthdate on form.");document.getElementById('regEmail').value = googleUser.email;document.getElementById('regUsername').value = googleUser.given_name.replace(/[^a-zA-Z0-9]/g, "");} catch (error) { alert("Google connection flaw."); }}function verifyOTP() {if(document.getElementById('otpInput').value.trim() == generatedCode) {document.getElementById('otpSection').style.display = 'none';document.getElementById('passwordSetupSection').style.display = 'block';} else { alert("Incorrect OTP Code."); }}function saveNewUserPassword() {const password = document.getElementById('setupPassword').value;if(password.length < 6 || !/\d/.test(password) || !/[!@#$%^&*()_+-=[]{};':"\|,.<>/?]/.test(password)) {return alert("Password parameters invalid.");}appendUserToDatabase(tempUserSession.username, password, tempUserSession.email, tempUserSession.birthdate);localStorage.setItem('sw_user_age', calculateAge(tempUserSession.birthdate));localStorage.setItem('sw_access', 'b2theXZvaWQ=');unlockStore();}function handleLogin() {const userOrEmailInput = document.getElementById('loginUserOrEmail').value.trim().toLowerCase();const passwordInput = document.getElementById('loginPassword').value;const database = getUsersDatabase();const matchedUser = database.find(u => u.username.toLowerCase() === userOrEmailInput || u.email.toLowerCase() === userOrEmailInput);if(matchedUser && matchedUser.password === passwordInput) {localStorage.setItem('sw_user_age', calculateAge(matchedUser.birthdate));localStorage.setItem('sw_access', 'b2theXZvaWQ=');unlockStore();} else { alert("Access Denied. Check entries."); }}function handleGoogleLogin(response) {try {const base64Url = response.credential.split('.');const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');const googleUser = JSON.parse(atob(base64));const database = getUsersDatabase();const matchedUser = database.find(u => u.email.toLowerCase() === googleUser.email.toLowerCase());if (matchedUser) {localStorage.setItem('sw_user_age', calculateAge(matchedUser.birthdate));localStorage.setItem('sw_access', 'b2theXZvaWQ=');unlockStore();} else {alert("Account not registered yet.");switchForm('register');}} catch(e) { alert("Google Error."); }}function unlockStore() {document.getElementById('mainAuthBlock').style.display = 'none';document.getElementById('storeContent').style.display = 'block';const userAge = parseInt(localStorage.getItem('sw_user_age') || "0");const targetContainer = document.getElementById('dynamicDownloadArea');// Limpiar área de inyección para evitar duplicados en el DOMtargetContainer.innerHTML = '';if(userAge >= 7) {// El elemento DOM se construye en tiempo de ejecución usando el arreglo ocultoconst secureLink = document.createElement('a');secureLink.href = _0x_dwn;secureLink.className = 'btn';secureLink.style.textDecoration = 'none';secureLink.style.display = 'block';secureLink.style.textAlign = 'center';secureLink.style.margin = '0';secureLink.innerText = 'DOWNLOAD NOW';targetContainer.appendChild(secureLink);} else {const restrictedMessage = document.createElement('div');restrictedMessage.style.background = '#1a0505';restrictedMessage.style.border = '1px solid #ff3333';restrictedMessage.style.padding = '15px';restrictedMessage.style.borderRadius = '8px';const txt = document.createElement('p');txt.style.color = '#ff6666';txt.style.fontSize = '0.95rem';txt.style.fontWeight = 'bold';txt.style.margin = '0';txt.innerText = 'We are sorry, you do not meet the appropriate age requirements to play this game.';restrictedMessage.appendChild(txt);targetContainer.appendChild(restrictedMessage);}}function logout() {localStorage.removeItem('sw_access');localStorage.removeItem('sw_user_age');location.reload();}if(localStorage.getItem('sw_access') === 'b2theXZvaWQ=') { unlockStore(); } else { switchForm('login'); }
+        <div id="reg-form">
+
+
+            <input 
+                type="text"
+                id="reg-user"
+                placeholder="Username">
+
+
+            <input
+                type="email"
+                id="reg-mail"
+                placeholder="Email">
+
+
+            <label class="birth-label">
+                Date of Birth
+            </label>
+
+
+            <input
+                type="date"
+                id="reg-birth">
+
+
+            <button
+                class="btn-action"
+                id="btn-send-reg"
+                onclick="sendRegisterCode()">
+
+                SEND CODE
+
+            </button>
+
+
+        </div>
+
+
+
+        <div id="reg-verify" class="hidden">
+
+
+            <p class="small-text">
+                Enter the 6-digit verification code sent to your email
+            </p>
+
+
+            <input
+                type="text"
+                id="reg-otp"
+                maxlength="6"
+                class="otp-input"
+                placeholder="000000">
+
+
+            <button
+                class="btn-action cyan-button"
+                onclick="verifyRegisterCode()">
+
+                VERIFY & CREATE
+
+            </button>
+
+
+        </div>
+
+
+        <span class="link" onclick="switchView('view-start')">
+            Back to Login
+        </span>
+
+
+    </div>
+
+
+
+    <!-- PASSWORD RECOVERY -->
+
+    <div id="view-recovery" class="auth-card hidden">
+
+        <h2 class="cyan-title">
+            RECOVERY
+        </h2>
+
+
+        <input
+            type="email"
+            id="recover-mail"
+            placeholder="Account Email">
+
+
+        <button
+            class="btn-action"
+            onclick="sendRecoveryCode()">
+
+            SEND RECOVERY CODE
+
+        </button>
+
+
+        <span class="link" onclick="switchView('view-start')">
+            Back
+        </span>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+
+<!-- VAULT -->
+
+<main id="vault-ui">
+
+
+<header>
+
+<h1>
+THE VAULT
+</h1>
+
+
+<div class="user-controls">
+
+<span id="user-display"></span>
+
+
+<button onclick="logout()">
+LOGOUT
+</button>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+<section class="store-box">
+
+
+<div class="game-card">
+
+
+<h3>
+SHADOW HOPE
+</h3>
+
+
+<p>
+Official Setup.exe for Windows
+<br>
+IARC 7+ Classification
+</p>
+
+
+<!-- 
+     VACÍO INTENCIONAL
+     El botón será creado por JavaScript
+-->
+
+<div id="dynamicDownloadArea"></div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+</main>
+
+
+
+
+
+<script src="script.js"></script>
+
+
+</body>
+</html>
