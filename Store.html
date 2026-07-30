@@ -10,12 +10,19 @@
 <!-- Firebase SDKs -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
   import { firebaseConfig } from "./firebase-config.js";
 
   const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
   const storage = getStorage(app);
+  
+  window.firebaseDB = { db, collection, getDocs, setDoc, doc, deleteDoc, updateDoc, arrayUnion, arrayRemove };
   window.firebaseStorage = { storage, ref, uploadBytes, getDownloadURL };
+  
+  // Disparar evento de carga de Firestore
+  window.dispatchEvent(new Event('firebase-ready'));
 </script>
 <style>
 :root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; }
@@ -283,12 +290,72 @@ let pendingUserData = {};
 let recoveryEmailTarget = "";
 let currentUser = null;
 
+// Caché en memoria sincronizada con Firestore
+let cachedUsers = [];
+let cachedPosts = [];
+let cachedGames = [];
+let cachedPaymentSettings = { paypal: "", gpay: "", card: "" };
+
 const viewLogin = document.getElementById("view-login");
 const viewReg = document.getElementById("view-reg");
 const viewPassword = document.getElementById("view-password");
 const viewRecovery = document.getElementById("view-recovery");
 const authContainer = document.getElementById("auth-container");
 const mainContainer = document.getElementById("main-container");
+
+// Inicializar base de datos Firestore y Cargar Datos
+window.addEventListener('firebase-ready', async () => {
+  await syncDataFromFirestore();
+  // Verificar sesión activa
+  const activeSession = localStorage.getItem("ActiveSession");
+  if (activeSession) {
+    const found = cachedUsers.find(u => u.username === activeSession);
+    if (found && !found.banned) loginSuccess(found);
+  }
+});
+
+async function syncDataFromFirestore() {
+  try {
+    const { db, collection, getDocs } = window.firebaseDB;
+    
+    // Cargar Usuarios
+    const usersSnap = await getDocs(collection(db, "users"));
+    cachedUsers = [];
+    usersSnap.forEach(docSnap => cachedUsers.push(docSnap.data()));
+    
+    // Cargar Posts
+    const postsSnap = await getDocs(collection(db, "posts"));
+    cachedPosts = [];
+    postsSnap.forEach(docSnap => cachedPosts.push(docSnap.data()));
+    cachedPosts.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Cargar Juegos
+    const gamesSnap = await getDocs(collection(db, "games"));
+    cachedGames = [];
+    gamesSnap.forEach(docSnap => cachedGames.push(docSnap.data()));
+    if (cachedGames.length === 0) {
+      cachedGames = [{ 
+        id: "1", 
+        title: "Sub-Zero Frontier", 
+        downloadUrl: "https://github.com", 
+        msUrl: "https://apps.microsoft.com", 
+        status: "available", 
+        ageRating: "USK / Mayores de 12",
+        pricing: "free", 
+        price: "" 
+      }];
+    }
+
+    // Cargar Configuración de Pagos
+    const paymentsSnap = await getDocs(collection(db, "payments"));
+    paymentsSnap.forEach(docSnap => {
+      if (docSnap.id === "settings") cachedPaymentSettings = docSnap.data();
+    });
+
+  } catch (e) {
+    console.error("Error sincronizando con Firestore:", e);
+  }
+}
 
 document.getElementById("new-game-pricing").addEventListener("change", (e) => {
   const priceInput = document.getElementById("new-game-price");
@@ -300,42 +367,51 @@ document.getElementById("new-game-pricing").addEventListener("change", (e) => {
   }
 });
 
-function getUsers() {
-  const data = localStorage.getItem("UsersDB");
-  if (!data) return [];
-  try { return JSON.parse(atob(data)); } catch { return []; }
+function getUsers() { return cachedUsers; }
+async function saveUserToFirestore(userObj) {
+  const { db, setDoc, doc } = window.firebaseDB;
+  await setDoc(doc(db, "users", userObj.username), userObj);
+  const idx = cachedUsers.findIndex(u => u.username === userObj.username);
+  if (idx > -1) cachedUsers[idx] = userObj;
+  else cachedUsers.push(userObj);
 }
-function saveUsers(users) { localStorage.setItem("UsersDB", btoa(JSON.stringify(users))); }
 
-function getPosts() {
-  const data = localStorage.getItem("PostsDB");
-  if (!data) return [];
-  try { return JSON.parse(data); } catch { return []; }
+function getPosts() { return cachedPosts; }
+async function savePostToFirestore(postObj) {
+  const { db, setDoc, doc } = window.firebaseDB;
+  await setDoc(doc(db, "posts", postObj.id), postObj);
+  cachedPosts.unshift(postObj);
 }
-function savePosts(posts) { localStorage.setItem("PostsDB", JSON.stringify(posts)); }
+async function deletePostFromFirestore(postId) {
+  const { db, deleteDoc, doc } = window.firebaseDB;
+  await deleteDoc(doc(db, "posts", postId));
+  cachedPosts = cachedPosts.filter(p => p.id !== postId);
+}
+async function updatePostInFirestore(postObj) {
+  const { db, setDoc, doc } = window.firebaseDB;
+  await setDoc(doc(db, "posts", postObj.id), postObj);
+  const idx = cachedPosts.findIndex(p => p.id === postObj.id);
+  if (idx > -1) cachedPosts[idx] = postObj;
+}
 
-function getGames() {
-  const data = localStorage.getItem("GamesDB");
-  if (!data) return [{ 
-    id: "1", 
-    title: "Sub-Zero Frontier", 
-    downloadUrl: "https://github.com", 
-    msUrl: "https://apps.microsoft.com", 
-    status: "available", 
-    ageRating: "USK / Mayores de 12",
-    pricing: "free", 
-    price: "" 
-  }];
-  try { return JSON.parse(data); } catch { return []; }
+function getGames() { return cachedGames; }
+async function saveGameToFirestore(gameObj) {
+  const { db, setDoc, doc } = window.firebaseDB;
+  await setDoc(doc(db, "games", gameObj.id), gameObj);
+  cachedGames.push(gameObj);
 }
-function saveGames(games) { localStorage.setItem("GamesDB", JSON.stringify(games)); }
+async function deleteGameFromFirestore(gameId) {
+  const { db, deleteDoc, doc } = window.firebaseDB;
+  await deleteDoc(doc(db, "games", gameId));
+  cachedGames = cachedGames.filter(g => g.id !== gameId);
+}
 
-function getPaymentSettings() {
-  const data = localStorage.getItem("PaymentSettingsDB");
-  if (!data) return { paypal: "", gpay: "", card: "" };
-  try { return JSON.parse(data); } catch { return { paypal: "", gpay: "", card: "" }; }
+function getPaymentSettings() { return cachedPaymentSettings; }
+async function savePaymentSettingsToFirestore(settings) {
+  const { db, setDoc, doc } = window.firebaseDB;
+  await setDoc(doc(db, "payments", "settings"), settings);
+  cachedPaymentSettings = settings;
 }
-function savePaymentSettings(settings) { localStorage.setItem("PaymentSettingsDB", JSON.stringify(settings)); }
 
 // Buscador de usuarios global
 window.handleUserSearch = function(query) {
@@ -466,15 +542,14 @@ document.getElementById("btn-verify-code").addEventListener("click", () => {
   viewPassword.classList.remove("hidden");
 });
 
-document.getElementById("btn-create-account").addEventListener("click", () => {
+document.getElementById("btn-create-account").addEventListener("click", async () => {
   const password = document.getElementById("reg-pass").value;
   if (password.length < 6 || password !== document.getElementById("reg-pass-confirm").value) {
     alert("Contraseña inválida o no coincide (mínimo 6 caracteres)."); return;
   }
 
-  const users = getUsers();
   const isStrange = pendingUserData.username === "StrangeWorld";
-  users.push({
+  const newUser = {
     username: pendingUserData.username,
     email: pendingUserData.email,
     birth: pendingUserData.birth,
@@ -484,9 +559,9 @@ document.getElementById("btn-create-account").addEventListener("click", () => {
     friends: [],
     friendRequests: [],
     banned: false
-  });
+  };
 
-  saveUsers(users);
+  await saveUserToFirestore(newUser);
   alert("¡Cuenta creada con éxito!");
   viewPassword.classList.add("hidden");
   viewLogin.classList.remove("hidden");
@@ -515,7 +590,7 @@ document.getElementById("btn-send-rec-code").addEventListener("click", () => {
     });
 });
 
-document.getElementById("btn-verify-rec-code").addEventListener("click", () => {
+document.getElementById("btn-verify-rec-code").addEventListener("click", async () => {
   const code = document.getElementById("rec-code").value.trim();
   const newPass = document.getElementById("rec-new-pass").value;
 
@@ -523,10 +598,10 @@ document.getElementById("btn-verify-rec-code").addEventListener("click", () => {
   if (newPass.length < 6) { alert("La contraseña debe tener al menos 6 caracteres."); return; }
 
   let users = getUsers();
-  let userIndex = users.findIndex(u => u.email === recoveryEmailTarget);
-  if (userIndex > -1) {
-    users[userIndex].password = newPass;
-    saveUsers(users);
+  let userObj = users.find(u => u.email === recoveryEmailTarget);
+  if (userObj) {
+    userObj.password = newPass;
+    await saveUserToFirestore(userObj);
     alert("¡Contraseña actualizada con éxito!");
     viewRecovery.classList.add("hidden");
     viewLogin.classList.remove("hidden");
@@ -583,12 +658,7 @@ document.getElementById("avatar-file-input").addEventListener("change", async fu
       const downloadURL = await getDownloadURL(snapshot.ref);
 
       currentUser.avatar = downloadURL;
-      let users = getUsers();
-      let idx = users.findIndex(u => u.username === currentUser.username);
-      if (idx !== -1) {
-        users[idx].avatar = currentUser.avatar;
-        saveUsers(users);
-      }
+      await saveUserToFirestore(currentUser);
       updateHeaderProfile();
       alert("¡Avatar actualizado con éxito mediante Firebase Storage!");
     } catch (err) {
@@ -748,20 +818,20 @@ function loadUserProfile(username) {
 }
 
 // Dar/Quitar Verificado exclusivo de StrangeWorld
-window.toggleVerifyUser = function(username) {
+window.toggleVerifyUser = async function(username) {
   if (currentUser.username !== "StrangeWorld") return;
   let users = getUsers();
   let userObj = users.find(u => u.username === username);
   if (!userObj) return;
 
   userObj.verified = !userObj.verified;
-  saveUsers(users);
+  await saveUserToFirestore(userObj);
   alert(`El usuario ${username} ahora ${userObj.verified ? 'tiene' : 'no tiene'} el verificado.`);
   loadUserProfile(username);
 };
 
 // Sistema de Amistades
-window.sendFriendRequest = function(targetUsername) {
+window.sendFriendRequest = async function(targetUsername) {
   let users = getUsers();
   let target = users.find(u => u.username === targetUsername);
   if (!target) return;
@@ -773,12 +843,12 @@ window.sendFriendRequest = function(targetUsername) {
   }
 
   target.friendRequests.push(currentUser.username);
-  saveUsers(users);
+  await saveUserToFirestore(target);
   alert(`Solicitud de amistad enviada a ${targetUsername}.`);
   loadUserProfile(targetUsername);
 };
 
-window.acceptFriendRequest = function(requesterName) {
+window.acceptFriendRequest = async function(requesterName) {
   let users = getUsers();
   let myUserIndex = users.findIndex(u => u.username === currentUser.username);
   let requesterIndex = users.findIndex(u => u.username === requesterName);
@@ -793,33 +863,35 @@ window.acceptFriendRequest = function(requesterName) {
 
   users[myUserIndex].friendRequests = users[myUserIndex].friendRequests.filter(name => name !== requesterName);
 
-  saveUsers(users);
+  await saveUserToFirestore(users[myUserIndex]);
+  await saveUserToFirestore(users[requesterIndex]);
+
   currentUser = users[myUserIndex];
   alert(`¡Ahora eres amigo de ${requesterName}!`);
   loadUserProfile(currentUser.username);
 };
 
-window.rejectFriendRequest = function(requesterName) {
+window.rejectFriendRequest = async function(requesterName) {
   let users = getUsers();
   let myUserIndex = users.findIndex(u => u.username === currentUser.username);
   if (myUserIndex === -1) return;
 
   users[myUserIndex].friendRequests = users[myUserIndex].friendRequests.filter(name => name !== requesterName);
-  saveUsers(users);
+  await saveUserToFirestore(users[myUserIndex]);
   currentUser = users[myUserIndex];
   alert("Solicitud rechazada.");
   loadUserProfile(currentUser.username);
 };
 
 // Panel de Administración para Banear
-window.toggleBanUser = function(username) {
+window.toggleBanUser = async function(username) {
   if (currentUser.username !== "StrangeWorld") return;
   let users = getUsers();
   let userObj = users.find(u => u.username === username);
   if (!userObj) return;
 
   userObj.banned = !userObj.banned;
-  saveUsers(users);
+  await saveUserToFirestore(userObj);
   alert(`El usuario ${username} ha sido ${userObj.banned ? 'baneado' : 'desbaneado'}.`);
   loadUserProfile(username);
 };
@@ -840,13 +912,13 @@ function loadPaymentInputs() {
   document.getElementById("pay-card").value = p.card || "";
 }
 
-window.savePaymentMethods = function() {
+window.savePaymentMethods = async function() {
   const paypal = document.getElementById("pay-paypal").value.trim();
   const gpay = document.getElementById("pay-gpay").value.trim();
   const card = document.getElementById("pay-card").value.trim();
 
-  savePaymentSettings({ paypal, gpay, card });
-  alert("¡Tus métodos de pago han sido guardados de forma segura!");
+  await savePaymentSettingsToFirestore({ paypal, gpay, card });
+  alert("¡Tus métodos de pago han sido guardados de forma segura en Firebase!");
 };
 
 // --- TIENDA ---
@@ -910,7 +982,7 @@ function loadStore() {
   });
 }
 
-window.addGame = function() {
+window.addGame = async function() {
   if (currentUser.username !== "StrangeWorld") return;
   const title = document.getElementById("new-game-title").value.trim();
   const downloadUrl = document.getElementById("new-game-url").value.trim();
@@ -922,8 +994,7 @@ window.addGame = function() {
 
   if (!title) { alert("Ingresa el título del juego."); return; }
 
-  let games = getGames();
-  games.push({ 
+  const newGame = { 
     id: Date.now().toString(), 
     title, 
     downloadUrl, 
@@ -932,8 +1003,9 @@ window.addGame = function() {
     ageRating,
     pricing, 
     price 
-  });
-  saveGames(games);
+  };
+  
+  await saveGameToFirestore(newGame);
 
   document.getElementById("new-game-title").value = "";
   document.getElementById("new-game-url").value = "";
@@ -941,14 +1013,12 @@ window.addGame = function() {
   document.getElementById("new-game-price").value = "";
   document.getElementById("strange-store-admin").classList.add("hidden");
   loadStore();
-  alert("Juego añadido a la tienda con éxito.");
+  alert("Juego añadido a la tienda con éxito en Firebase.");
 };
 
-window.deleteGame = function(id) {
+window.deleteGame = async function(id) {
   if (currentUser.username !== "StrangeWorld") return;
-  let games = getGames();
-  games = games.filter(g => g.id !== id);
-  saveGames(games);
+  await deleteGameFromFirestore(id);
   loadStore();
 };
 
@@ -974,9 +1044,8 @@ document.getElementById("btn-create-post").addEventListener("click", async () =>
 
   if (!text && fileInput.files.length === 0) { alert("Escribe algo o añade un archivo."); return; }
 
-  const savePostWithMedia = (mediaUrl, mediaType) => {
-    const posts = getPosts();
-    posts.unshift({
+  const savePostWithMedia = async (mediaUrl, mediaType) => {
+    const newPost = {
       id: Date.now().toString(),
       author: currentUser.username,
       text: text,
@@ -985,8 +1054,8 @@ document.getElementById("btn-create-post").addEventListener("click", async () =>
       likes: [],
       comments: [],
       timestamp: Date.now()
-    });
-    savePosts(posts);
+    };
+    await savePostToFirestore(newPost);
     document.getElementById("post-text").value = "";
     fileInput.value = "";
     loadFeed();
@@ -1000,13 +1069,13 @@ document.getElementById("btn-create-post").addEventListener("click", async () =>
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
       const mediaType = file.type.startsWith('video') ? 'video' : 'image';
-      savePostWithMedia(downloadURL, mediaType);
+      await savePostWithMedia(downloadURL, mediaType);
     } catch (err) {
       console.error(err);
       alert("Error al subir archivo multimedia a Firebase Storage.");
     }
   } else {
-    savePostWithMedia(null, null);
+    await savePostWithMedia(null, null);
   }
 });
 
@@ -1063,7 +1132,7 @@ function loadFeed() {
   });
 }
 
-window.toggleLike = function(postId) {
+window.toggleLike = async function(postId) {
   let posts = getPosts();
   let post = posts.find(p => p.id === postId);
   if (!post) return;
@@ -1072,11 +1141,11 @@ window.toggleLike = function(postId) {
   if (index > -1) post.likes.splice(index, 1);
   else post.likes.push(currentUser.username);
 
-  savePosts(posts);
+  await updatePostInFirestore(post);
   loadFeed();
 };
 
-window.addComment = function(postId) {
+window.addComment = async function(postId) {
   const input = document.getElementById(`comment-input-${postId}`);
   const text = input.value.trim();
   if (!text) return;
@@ -1086,26 +1155,15 @@ window.addComment = function(postId) {
   if (!post) return;
 
   post.comments.push({ author: currentUser.username, text: text, timestamp: Date.now() });
-  savePosts(posts);
+  await updatePostInFirestore(post);
   loadFeed();
 };
 
-window.deletePost = function(postId) {
+window.deletePost = async function(postId) {
   if (currentUser.username !== "StrangeWorld") return;
-  let posts = getPosts();
-  posts = posts.filter(p => p.id !== postId);
-  savePosts(posts);
+  await deletePostFromFirestore(postId);
   loadFeed();
 };
-
-window.addEventListener("DOMContentLoaded", () => {
-  const activeSession = localStorage.getItem("ActiveSession");
-  if (activeSession) {
-    const users = getUsers();
-    const found = users.find(u => u.username === activeSession);
-    if (found && !found.banned) loginSuccess(found);
-  }
-});
 </script>
 </body>
 </html>
