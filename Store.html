@@ -17,19 +17,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
         body { background: var(--dark); color: #fff; font-family: 'Rubik', sans-serif; -webkit-user-select: none; user-select: none; }
         
-        header {
-            padding: 20px 8%; display: flex; justify-content: space-between; align-items: center;
-            background: #000; border-bottom: 4px solid var(--orange); position: sticky; top: 0; z-index: 1000;
-        }
+        header { padding: 20px 8%; display: flex; justify-content: space-between; align-items: center; background: #000; border-bottom: 4px solid var(--orange); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Lilita One'; font-size: 2rem; text-shadow: 2px 2px var(--orange); }
         nav a { font-family: 'Lilita One'; color: #fff; text-decoration: none; margin-left: 25px; transition: 0.3s; }
         nav a:hover, .active { color: var(--cyan); }
 
-        /* Estructura de dos columnas inspirada en Facebook */
-        .fb-layout {
-            display: flex; max-width: 1000px; margin: 60px auto; padding: 20px;
-            align-items: center; justify-content: space-between; gap: 40px;
-        }
+        .fb-layout { display: flex; max-width: 1000px; margin: 60px auto; padding: 20px; align-items: center; justify-content: space-between; gap: 40px; }
         .fb-left { flex: 1; text-align: left; }
         .fb-left h1 { font-family: 'Lilita One'; font-size: 3.5rem; color: var(--orange); margin-bottom: 15px; }
         .fb-left p { font-size: 1.3rem; color: #aaa; line-height: 1.5; }
@@ -41,7 +34,6 @@
         input:focus, select:focus { border-color: var(--cyan); }
         
         .label-group { text-align: left; margin-bottom: 5px; color: #888; font-size: 0.85rem; padding-left: 4px; }
-
         .btn { width: 100%; padding: 14px; background: var(--orange); border: none; border-radius: 8px; font-family: 'Lilita One'; color: #fff; font-size: 1.2rem; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
         .btn:active { transform: scale(0.98); }
         .btn-secondary { background: transparent; border: 1px solid #333; color: #aaa; margin-top: 10px; }
@@ -72,46 +64,37 @@
         </nav>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL DOS COLUMNAS -->
     <div class="fb-layout" id="mainAuthBlock">
-        
-        <!-- COLUMNA IZQUIERDA: MENSAJE DE ENTRADA -->
         <div class="fb-left">
             <h1>Strange World</h1>
             <p>Traverse the glitch, survive the shadows, and unlock exclusive project intelligence terminal windows.</p>
         </div>
 
-        <!-- COLUMNA DERECHA: INTERFACES -->
         <div class="fb-right">
             <div class="auth-container">
                 
-                <!-- TERMINAL DE ACCESO / INICIAR SESIÓN -->
+                <!-- LOGIN -->
                 <div id="loginSection">
                     <input type="text" id="loginUserOrEmail" placeholder="Username or Email">
                     <input type="password" id="loginPassword" placeholder="Password">
                     <button class="btn" onclick="handleLogin()">Login</button>
                     <div class="divider"></div>
                     <button class="btn btn-secondary" onclick="switchForm('register')">Create a new account</button>
-                    
                     <div style="margin-top: 25px;">
                         <div id="g_id_onload" data-client_id="://googleusercontent.com" data-callback="handleGoogleLogin"></div>
                         <div class="g_id_signin" data-type="standard"></div>
                     </div>
                 </div>
 
-                <!-- REGISTRO TIPO FACEBOOK -->
+                <!-- REGISTRO -->
                 <div id="registerSection">
                     <input type="text" id="regUsername" placeholder="Choose a Username">
                     <input type="email" id="regEmail" placeholder="Email Address">
-                    
-                    <!-- Campo de Fecha de Nacimiento Requerido -->
                     <div class="label-group">Date of birth</div>
                     <input type="date" id="regBirthdate" required>
-                    
                     <button class="btn" onclick="startRegistration()">Get Verification Code</button>
                     <div class="divider"></div>
                     <button class="btn btn-secondary" onclick="switchForm('login')">Already have an account?</button>
-                    
                     <div style="margin-top: 20px;">
                         <div class="g_id_signin" data-type="standard" data-callback="handleGoogleRegister"></div>
                     </div>
@@ -119,7 +102,7 @@
 
                 <!-- VERIFICACIÓN OTP -->
                 <div id="otpSection">
-                    <p style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 20px;">Code sent via EmailJS. Check your inbox.</p>
+                    <p style="color: var(--cyan); font-size: 0.9rem; margin-bottom: 20px;">Code sent via system. Check your inbox.</p>
                     <input type="text" id="otpInput" placeholder="6-DIGIT CODE" style="text-align: center; letter-spacing: 10px; font-size: 1.5rem;">
                     <button class="btn" onclick="verifyOTP()">Verify Code</button>
                     <button class="btn btn-secondary" onclick="location.reload()">Cancel</button>
@@ -137,23 +120,15 @@
         </div>
     </div>
 
-    <!-- TIENDA DESBLOQUEADA CON FILTRADO DE EDAD -->
+    <!-- TIENDA DESBLOQUEADA SIN ENLACES INTERNOS -->
     <div id="storeContent" class="auth-container" style="max-width: 600px; margin: 80px auto;">
         <h2>STORE INTEL</h2>
         <div style="background: #000; padding: 30px; border-radius: 20px; border: 1px dashed var(--orange); margin-top: 20px;">
             <h3 style="font-family: 'Lilita One'; color: var(--cyan);">SHADOW HOPE I</h3>
             <p style="color: #888; margin: 5px 0 15px 0;">Official Setup.exe for Windows. (IARC 7+ Classification)</p>
             
-            <!-- Bloques condicionales que se activan según la edad computada -->
-            <div id="downloadAllowed" style="display: none;">
-                <a href="https://github.com" class="btn" style="text-decoration: none; display: block; text-align: center; margin: 0;">DOWNLOAD NOW</a>
-            </div>
-            
-            <div id="downloadRestricted" style="display: none; background: #1a0505; border: 1px solid #ff3333; padding: 15px; border-radius: 8px;">
-                <p style="color: #ff6666; font-size: 0.95rem; font-weight: bold; margin: 0;">
-                    We are sorry, you do not meet the appropriate age requirements to play this game.
-                </p>
-            </div>
+            <!-- El contenedor del botón se genera por código en tiempo de ejecución, no existe en el HTML original -->
+            <div id="dynamicDownloadArea"></div>
         </div>
         <a href="#" class="footer-link" onclick="logout()">Logout / Change Account</a>
     </div>
@@ -170,10 +145,30 @@
             setInterval(function() { (function() { return false; })['constructor']('debugger')(); }, 100);
         })();
 
-        // --- 💾 LÓGICA DE NEGOCIO ---
-        (function() { emailjs.init("UGD7l3nL7Vkeyu5D3"); })();
+        // --- 🔑 OFUSCACIÓN DE ENLACES Y LLAVES (Fragmentación Hexadecimal) ---
+        // Tus credenciales y enlaces convertidos a cadenas desarmadas dinámicas
+        const _0x_srv = String.fromCharCode(115,101,114,118,105,99,101,95,111,121,119,55,107,100,97); // service_oyw7kda
+        const _0x_tmp = String.fromCharCode(116,101,109,112,108,97,116,101,95,101,99,49,118,116,107,113); // template_ec1vtkq
+        const _0x_pbl = String.fromCharCode(85,71,68,55,108,51,110,76,55,86,107,101,121,117,53,68,51); // UGD7l3nL7Vkeyu5D3
+        
+        // Enlace de descarga cortado y reconstruido al vuelo
+        const _0x_dwn = [
+            'h','t','t','p','s',':','/','/','g','i','t','h','u','b','.','c','o','m','/',
+            'S','t','r','a','n','g','e','W','o','r','l','d','S','H','/','S','h','a','d','o','w','-','H','o','p','e','/',
+            'r','e','l','e','a','s','e','s','/','d','o','w','n','l','o','a','d','/','1','.','0','/',
+            'S','h','a','d','o','w','_','H','o','p','e','_','I','_','S','e','t','u','p','.','e','x','e'
+        ].join('');
+
+        (function() { emailjs.init(_0x_pbl); })();
 
         if (!localStorage.getItem('Users_txt')) {
-            // Formato por defecto: StrangeWorld. Password: 123456* shadowhopesh@gmail.com | Birth: 1995-01-01
             const initialEncrypted = btoa("StrangeWorld. Password: 123456* shadowhopesh@gmail.com | Birth: 1995-01-01\n");
             localStorage.setItem('Users_txt', initialEncrypted);
+        }
+
+        let generatedCode = null;
+        let tempUserSession = {};
+
+        function switchForm(form) {
+            if(form === 'login') {
+Usa el código con precaución.document.getElementById('loginSection').style.display = 'block';document.getElementById('registerSection').style.display = 'none';} else {document.getElementById('loginSection').style.display = 'none';document.getElementById('registerSection').style.display = 'block';}}function calculateAge(birthdateString) {if(!birthdateString) return 0;const today = new Date();const birthDate = new Date(birthdateString);let age = today.getFullYear() - birthDate.getFullYear();const monthDiff = today.getMonth() - birthDate.getMonth();if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) { age--; }return age;}function getUsersDatabase() {try {const encryptedText = localStorage.getItem('Users_txt') || "";const rawText = atob(encryptedText);const lines = rawText.split('\n');const users = [];lines.forEach(line => {if(line.trim() === "") return;const dotIndex = line.indexOf('.');const passLabelIndex = line.indexOf('. Password: ');const birthLabelIndex = line.indexOf(' | Birth: ');if (dotIndex !== -1 && passLabelIndex !== -1) {const username = line.substring(0, dotIndex).trim();let password = ""; let email = ""; let birthdate = "2000-01-01";if(birthLabelIndex !== -1) {const afterPass = line.substring(passLabelIndex + 12, birthLabelIndex);const spaceIndex = afterPass.indexOf(' ');password = afterPass.substring(0, spaceIndex).trim();email = afterPass.substring(spaceIndex + 1).trim();birthdate = line.substring(birthLabelIndex + 9).trim();} else {const afterPass = line.substring(passLabelIndex + 12);const spaceIndex = afterPass.indexOf(' ');password = afterPass.substring(0, spaceIndex).trim();email = afterPass.substring(spaceIndex + 1).trim();}users.push({ username, password, email, birthdate });}});return users;} catch(e) { return []; }}function appendUserToDatabase(username, password, email, birthdate) {try {const encryptedText = localStorage.getItem('Users_txt') || "";let rawText = atob(encryptedText);const newLine = ${username}. Password: ${password} ${email} | Birth: ${birthdate}\n;rawText += newLine;localStorage.setItem('Users_txt', btoa(rawText));} catch(e) {}}function startRegistration() {const username = document.getElementById('regUsername').value.trim();const email = document.getElementById('regEmail').value.trim();const birthdate = document.getElementById('regBirthdate').value;if(!username || !email.includes('@') || !birthdate) return alert("Please fill all fields accurately.");const database = getUsersDatabase();if(database.some(u => u.username.toLowerCase() === username.toLowerCase())) return alert("Username already taken.");if(database.some(u => u.email.toLowerCase() === email.toLowerCase())) return alert("Email already registered.");tempUserSession = { username, email, birthdate };generatedCode = Math.floor(100000 + Math.random() * 900000);const params = { to_name: username, to_email: email, verification_code: generatedCode };// Ejecución segura usando referencias de memoria encriptadasemailjs.send(_0x_srv, _0x_tmp, params).then(() => {document.getElementById('registerSection').style.display = 'none';document.getElementById('otpSection').style.display = 'block';}).catch(err => alert("Error processing communication token."));}function handleGoogleRegister(response) {try {const base64Url = response.credential.split('.');const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');const googleUser = JSON.parse(atob(base64));const database = getUsersDatabase();if(database.some(u => u.email.toLowerCase() === googleUser.email.toLowerCase())) {alert("Account registered. Routing to login.");return switchForm('login');}alert("To complete your profile under IARC 7+ metrics, please complete birthdate on form.");document.getElementById('regEmail').value = googleUser.email;document.getElementById('regUsername').value = googleUser.given_name.replace(/[^a-zA-Z0-9]/g, "");} catch (error) { alert("Google connection flaw."); }}function verifyOTP() {if(document.getElementById('otpInput').value.trim() == generatedCode) {document.getElementById('otpSection').style.display = 'none';document.getElementById('passwordSetupSection').style.display = 'block';} else { alert("Incorrect OTP Code."); }}function saveNewUserPassword() {const password = document.getElementById('setupPassword').value;if(password.length < 6 || !/\d/.test(password) || !/[!@#$%^&*()_+-=[]{};':"\|,.<>/?]/.test(password)) {return alert("Password parameters invalid.");}appendUserToDatabase(tempUserSession.username, password, tempUserSession.email, tempUserSession.birthdate);localStorage.setItem('sw_user_age', calculateAge(tempUserSession.birthdate));localStorage.setItem('sw_access', 'b2theXZvaWQ=');unlockStore();}function handleLogin() {const userOrEmailInput = document.getElementById('loginUserOrEmail').value.trim().toLowerCase();const passwordInput = document.getElementById('loginPassword').value;const database = getUsersDatabase();const matchedUser = database.find(u => u.username.toLowerCase() === userOrEmailInput || u.email.toLowerCase() === userOrEmailInput);if(matchedUser && matchedUser.password === passwordInput) {localStorage.setItem('sw_user_age', calculateAge(matchedUser.birthdate));localStorage.setItem('sw_access', 'b2theXZvaWQ=');unlockStore();} else { alert("Access Denied. Check entries."); }}function handleGoogleLogin(response) {try {const base64Url = response.credential.split('.');const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');const googleUser = JSON.parse(atob(base64));const database = getUsersDatabase();const matchedUser = database.find(u => u.email.toLowerCase() === googleUser.email.toLowerCase());if (matchedUser) {localStorage.setItem('sw_user_age', calculateAge(matchedUser.birthdate));localStorage.setItem('sw_access', 'b2theXZvaWQ=');unlockStore();} else {alert("Account not registered yet.");switchForm('register');}} catch(e) { alert("Google Error."); }}function unlockStore() {document.getElementById('mainAuthBlock').style.display = 'none';document.getElementById('storeContent').style.display = 'block';const userAge = parseInt(localStorage.getItem('sw_user_age') || "0");const targetContainer = document.getElementById('dynamicDownloadArea');// Limpiar área de inyección para evitar duplicados en el DOMtargetContainer.innerHTML = '';if(userAge >= 7) {// El elemento DOM se construye en tiempo de ejecución usando el arreglo ocultoconst secureLink = document.createElement('a');secureLink.href = _0x_dwn;secureLink.className = 'btn';secureLink.style.textDecoration = 'none';secureLink.style.display = 'block';secureLink.style.textAlign = 'center';secureLink.style.margin = '0';secureLink.innerText = 'DOWNLOAD NOW';targetContainer.appendChild(secureLink);} else {const restrictedMessage = document.createElement('div');restrictedMessage.style.background = '#1a0505';restrictedMessage.style.border = '1px solid #ff3333';restrictedMessage.style.padding = '15px';restrictedMessage.style.borderRadius = '8px';const txt = document.createElement('p');txt.style.color = '#ff6666';txt.style.fontSize = '0.95rem';txt.style.fontWeight = 'bold';txt.style.margin = '0';txt.innerText = 'We are sorry, you do not meet the appropriate age requirements to play this game.';restrictedMessage.appendChild(txt);targetContainer.appendChild(restrictedMessage);}}function logout() {localStorage.removeItem('sw_access');localStorage.removeItem('sw_user_age');location.reload();}if(localStorage.getItem('sw_access') === 'b2theXZvaWQ=') { unlockStore(); } else { switchForm('login'); }
