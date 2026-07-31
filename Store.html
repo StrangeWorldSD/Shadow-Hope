@@ -3,1166 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Strange World | Store & Vault</title>
+<title>Strange World | Store</title>
 <link rel="icon" href="https://i.ibb.co/DPmtLPMj/Icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik:wght@300;400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<!-- Firebase SDKs -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-  import { firebaseConfig } from "./firebase-config.js";
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-  
-  window.firebaseDB = { db, collection, getDocs, setDoc, doc, deleteDoc, updateDoc, arrayUnion, arrayRemove };
-  window.firebaseStorage = { storage, ref, uploadBytes, getDownloadURL };
-  
-  // Disparar evento de carga de Firestore
-  window.dispatchEvent(new Event('firebase-ready'));
-</script>
 <style>
 :root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; }
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rubik', sans-serif; }
 body { background: var(--dark); color: white; min-height: 100vh; padding: 20px; }
 .hidden { display: none !important; }
 
-/* Contenedor de Autenticación */
-#auth-container { display: flex; align-items: center; justify-content: center; min-height: 90vh; }
-.auth-card {
-  width: 100%; max-width: 420px; background: #080808;
-  border: 2px solid var(--orange); border-radius: 30px; padding: 30px 20px; text-align: center;
-}
-h2 { font-family: 'Lilita One'; font-size: 2.5rem; margin-bottom: 20px; }
-.orange-title { color: var(--orange); }
-.cyan-title { color: var(--cyan); }
-input, select {
-  width: 100%; padding: 15px; margin: 10px 0; background: #111;
-  border: 1px solid #333; border-radius: 12px; color: white; text-align: center; font-size: 1rem;
-}
-textarea {
-  width: 100%; padding: 15px; margin: 10px 0; background: #111;
-  border: 1px solid #333; border-radius: 12px; color: white; text-align: left; font-size: 1rem; resize: vertical;
-}
-.btn-action {
-  width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 12px;
-  background: var(--orange); color: white; font-family: 'Lilita One'; font-size: 1.2rem; cursor: pointer;
-}
-.btn-action:hover { background: white; color: var(--orange); }
-.cyan-button { background: var(--cyan); color: black; }
-.link { display: block; margin-top: 15px; color: var(--cyan); cursor: pointer; font-size: 0.9rem; }
-.otp-input { border: 2px dashed var(--cyan); font-size: 1.5rem; letter-spacing: 8px; }
-
-/* Interfaz Principal */
 #main-container { max-width: 900px; margin: 0 auto; }
 header {
   display: flex; justify-content: space-between; align-items: center;
   border-bottom: 4px solid var(--orange); padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
 }
-header h1 { font-family: 'Lilita One'; font-size: 2.5rem; color: var(--orange); cursor: pointer; }
+header h1 { font-family: 'Lilita One'; font-size: 2.5rem; color: var(--orange); }
 
-.user-header-box { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-.user-avatar-container {
-  display: flex; align-items: center; gap: 10px; background: #111; padding: 5px 15px 5px 5px; border-radius: 50px; border: 1px solid #333;
-}
-.avatar-box {
-  width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #222;
-  display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid var(--cyan); cursor: pointer;
-}
-.avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-box span { font-size: 1.5rem; color: var(--cyan); font-family: 'Lilita One'; }
-.avatar-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-
-.verified-badge { width: 18px; height: 18px; vertical-align: middle; margin-left: 5px; }
-
-/* Navegación y Vistas */
-.nav-tabs { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; align-items: center; }
-.tab-btn { background: #111; border: 1px solid #333; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Lilita One'; font-size: 1.1rem; }
-.tab-btn.active { background: var(--orange); border-color: var(--orange); }
-.view-section { display: none; }
-.view-section.active-view { display: block; }
-
-/* Buscador de Usuarios */
-.user-search-box {
-  background: #080808; border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 25px;
-}
-.user-search-results { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; max-height: 200px; overflow-y: auto; }
-.user-search-item {
-  display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px 15px; border-radius: 10px; cursor: pointer; border: 1px solid #222;
-}
-.user-search-item:hover { border-color: var(--cyan); }
-
-/* Tienda y Admin */
+/* Tienda */
 .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
 .game-card { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; padding: 25px; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.game-logo { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; border: 1px solid #333; background: #111; margin-bottom: 5px; }
 .game-card h3 { font-family: 'Lilita One'; font-size: 1.5rem; color: var(--cyan); }
 .download-btn { display: inline-block; width: 100%; padding: 12px; background: var(--orange); color: white; text-decoration: none; border-radius: 10px; font-family: 'Lilita One'; font-size: 1.1rem; text-align: center; }
 .ms-btn { background: #0078d4; }
-.admin-store-panel { background: #150000; border: 1px solid #ff4444; padding: 20px; border-radius: 15px; margin-bottom: 25px; }
-.payment-methods-box { background: #0a0a0a; border: 1px solid var(--cyan); padding: 20px; border-radius: 15px; margin-bottom: 25px; text-align: left; }
-
-/* Perfil de Usuario Externo / Propio */
-.profile-box { background: #080808; border: 2px solid var(--cyan); border-radius: 20px; padding: 30px; text-align: center; }
-.profile-avatar { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; margin: 0 auto 15px auto; border: 3px solid var(--orange); background: #111; display: flex; align-items: center; justify-content: center; }
-.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-/* Comunidad y Posts */
-.post-creator { background: #080808; border: 2px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 30px; }
-.feed-container { display: flex; flex-direction: column; gap: 20px; }
-.post-card { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; padding: 20px; }
-.post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.post-media { width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin: 15px 0; }
-.post-actions { display: flex; gap: 15px; margin-top: 15px; align-items: center; flex-wrap: wrap; }
-.action-btn { background: none; border: 1px solid #444; color: white; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.action-btn { background: none; border: 1px solid #444; color: white; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Lilita One'; font-size: 1.1rem; }
 .action-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-.comments-section { margin-top: 15px; border-top: 1px solid #222; padding-top: 15px; }
-.comment-item { background: #111; padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem; }
+.payment-methods-box { background: #0a0a0a; border: 1px solid var(--cyan); padding: 20px; border-radius: 15px; margin-bottom: 25px; text-align: left; }
 </style>
 </head>
 <body>
 
-<!-- AUTENTICACIÓN -->
-<div id="auth-container">
-  <div id="view-login" class="auth-card">
-    <h2 class="orange-title">IDENTITY</h2>
-    <input id="login-user" placeholder="Username or Email" autocomplete="off">
-    <input id="login-pass" type="password" placeholder="Password">
-    <button id="btn-login" class="btn-action">LOGIN</button>
-    <span id="go-to-reg" class="link">Create Account</span>
-    <span id="go-to-recovery" class="link" style="color:var(--orange);">Forgot Password?</span>
-  </div>
-
-  <div id="view-reg" class="auth-card hidden">
-    <h2 class="orange-title">SIGN UP</h2>
-    <input id="reg-user" placeholder="Username" autocomplete="off">
-    <input id="reg-mail" placeholder="Email" autocomplete="off">
-    <input id="reg-birth" type="date">
-    <button id="btn-send-code" class="btn-action">SEND CODE</button>
-    <div id="otp-container" class="hidden" style="margin-top: 15px;">
-      <input id="reg-code" class="otp-input" placeholder="000000" maxlength="6">
-      <button id="btn-verify-code" class="btn-action cyan-button">VERIFY CODE</button>
-    </div>
-    <span id="go-to-login-from-reg" class="link">Back to Login</span>
-  </div>
-
-  <div id="view-password" class="auth-card hidden">
-    <h2 class="cyan-title">NEW PASSWORD</h2>
-    <input id="reg-pass" type="password" placeholder="Password (min 6 chars)">
-    <input id="reg-pass-confirm" type="password" placeholder="Confirm Password">
-    <button id="btn-create-account" class="btn-action">FINISH SIGN UP</button>
-  </div>
-
-  <div id="view-recovery" class="auth-card hidden">
-    <h2 class="cyan-title">RECOVERY</h2>
-    <input id="rec-mail" placeholder="Registered Email" autocomplete="off">
-    <button id="btn-send-rec-code" class="btn-action">SEND RECOVERY CODE</button>
-    <div id="rec-otp-container" class="hidden" style="margin-top: 15px;">
-      <input id="rec-code" class="otp-input" placeholder="000000" maxlength="6">
-      <input id="rec-new-pass" type="password" placeholder="New Password">
-      <button id="btn-verify-rec-code" class="btn-action cyan-button">CHANGE PASSWORD</button>
-    </div>
-    <span id="go-to-login-from-rec" class="link">Back to Login</span>
-  </div>
-</div>
-
-<!-- INTERFAZ PRINCIPAL -->
-<main id="main-container" class="hidden">
+<main id="main-container">
   <header>
-    <h1 onclick="window.goHome()">STRANGE WORLD</h1>
-    <div class="user-header-box">
-      <div class="user-avatar-container">
-        <div class="avatar-box" id="header-avatar-box" title="Cambiar avatar">
-          <span id="avatar-fallback">+</span>
-          <img id="avatar-img" class="hidden" alt="Avatar">
-          <input type="file" id="avatar-file-input" accept="image/*">
-        </div>
-        <span id="header-username" style="font-weight: bold; font-size: 1rem; cursor:pointer;" onclick="window.openMyProfile()"></span>
-      </div>
-      <button id="btn-logout" class="action-btn" style="border-color: #ff4444; color: #ff4444;">LOGOUT</button>
-    </div>
+    <h1>STRANGE WORLD</h1>
   </header>
 
-  <!-- Buscador global de usuarios -->
-  <div class="user-search-box">
-    <input id="global-user-search" placeholder="🔍 Buscar usuario en Strange World..." autocomplete="off" oninput="window.handleUserSearch(this.value)">
-    <div id="global-user-results" class="user-search-results hidden"></div>
-  </div>
-
-  <div class="nav-tabs">
-    <button class="tab-btn active" onclick="window.switchTab('store')">STORE</button>
-    <button class="tab-btn" onclick="window.switchTab('community')">COMMUNITY</button>
-    <button id="btn-request-verification" class="action-btn hidden" style="background:var(--cyan); color:black; width:auto; padding:10px 20px; margin:0;" onclick="window.openVerificationModal()">Solicitar Verificación 🛡️</button>
-  </div>
-
-  <!-- TIENDA -->
-  <div id="section-store" class="view-section active-view">
-    
-    <!-- Controles exclusivos para StrangeWorld (Admin) -->
-    <div id="strange-admin-controls" class="hidden" style="margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
-      <button class="action-btn" style="background:var(--cyan); color:black; width:auto; padding:12px 25px; margin:0;" onclick="window.toggleAddGamePanel()">Add Game +</button>
-      <button class="action-btn" style="background:#222; border:1px solid var(--cyan); color:var(--cyan); width:auto; padding:12px 25px; margin:0;" onclick="window.togglePaymentPanel()">Configurar Pagos 💳</button>
+  <div id="section-store">
+    <!-- Métodos de pago del creador -->
+    <div class="payment-methods-box">
+      <h3 style="color:var(--cyan); font-family:'Lilita One'; margin-bottom:10px;">Métodos de Pago del Creador</h3>
+      <p style="color:#aaa; font-size:0.9rem; margin-bottom:10px;">Realiza tu pago mediante las siguientes opciones:</p>
+      <ul style="color:#ddd; padding-left:20px; font-size:0.9rem; display:flex; flex-direction:column; gap:6px;">
+        <li><strong>Zinli:</strong> <span id="lbl-zinli">tucuenta@zinli (Modificar en código)</span></li>
+        <li><strong>PayPal:</strong> <span id="lbl-paypal">tucorreo@paypal.com (Modificar en código)</span></li>
+        <li><strong>Google Pay:</strong> <span id="lbl-gpay">tucuenta@gpay (Modificar en código)</span></li>
+        <li><strong>Tarjeta VISA:</strong> <span id="lbl-card">Datos de tarjeta / Enlace directo</span></li>
+      </ul>
     </div>
 
-    <!-- Panel Oculto para Añadir Juego -->
-    <div id="strange-store-admin" class="admin-store-panel hidden">
-      <h3 style="color:var(--orange); font-family:'Lilita One'; margin-bottom:10px;">Creator Store Panel - Nuevo Juego</h3>
-      <input id="new-game-title" placeholder="Game Title">
-      <input id="new-game-url" placeholder="Direct Download Link (URL)">
-      <input id="new-game-ms-url" placeholder="Microsoft Store Link (URL)">
-      
-      <label style="font-size:0.9rem; color:#aaa; display:block; margin-top:10px; text-align:left;">Estado de Disponibilidad:</label>
-      <select id="new-game-status">
-        <option value="available">Available Now</option>
-        <option value="coming">Coming Soon</option>
-      </select>
-
-      <label style="font-size:0.9rem; color:#aaa; display:block; margin-top:10px; text-align:left;">Clasificación por Edades (IARC / PEGI):</label>
-      <select id="new-game-age">
-        <option value="ACB / Supervisión parental (PG)">ACB / Supervisión parental (PG)</option>
-        <option value="CCC / 8 Años o más">CCC / 8 Años o más</option>
-        <option value="DGSC / Terror (12+)">DGSC / Terror (12+)</option>
-        <option value="DJCTQ / 10 Miedo">DJCTQ / 10 Miedo</option>
-        <option value="ESRB / Mayores de 10">ESRB / Mayores de 10</option>
-        <option value="GAMR / 12 Gmedia">GAMR / 12 Gmedia</option>
-        <option value="IARC / Mayores de 7">IARC / Mayores de 7</option>
-        <option value="Microsoft / Mayores de 7">Microsoft / Mayores de 7</option>
-        <option value="PCBP / Mayores de 6">PCBP / Mayores de 6</option>
-        <option value="PEGI / Mayores de 7">PEGI / Mayores de 7</option>
-        <option value="USK / Mayores de 12">USK / Mayores de 12</option>
-      </select>
-
-      <label style="font-size:0.9rem; color:#aaa; display:block; margin-top:10px; text-align:left;">Modelo de Pago:</label>
-      <select id="new-game-pricing">
-        <option value="free">Gratis (Free)</option>
-        <option value="paid">De pago (Paid)</option>
-      </select>
-
-      <input id="new-game-price" placeholder="Precio (Ej: $4.99)" style="display:none;">
-
-      <button class="action-btn" style="background:var(--orange); border:none; width:100%; margin-top:10px; padding:12px;" onclick="window.addGame()">Guardar y Publicar Juego</button>
-    </div>
-
-    <!-- Panel Oculto Configuración de Pagos -->
-    <div id="strange-payment-admin" class="payment-methods-box hidden">
-      <h3 style="color:var(--cyan); font-family:'Lilita One'; margin-bottom:10px;">Configurar Mis Métodos de Cobro</h3>
-      <input id="pay-paypal" placeholder="Correo o Enlace de PayPal.me">
-      <input id="pay-gpay" placeholder="Correo / ID de Google Pay">
-      <input id="pay-card" placeholder="Número de Tarjeta (VISA / MasterCard) o Pasarela">
-      <button class="action-btn cyan-button" style="margin-top:5px; padding:10px; font-size:1rem;" onclick="window.savePaymentMethods()">Guardar Métodos de Pago</button>
-    </div>
-
+    <!-- Catálogo de Juegos -->
     <div id="store-games-grid" class="store-grid"></div>
-  </div>
-
-  <!-- COMUNIDAD -->
-  <div id="section-community" class="view-section">
-    <div class="post-creator">
-      <textarea id="post-text" rows="3" placeholder="What's happening in Strange World? Share text, photos or videos..."></textarea>
-      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-        <input type="file" id="post-media-file" accept="image/*,video/*" style="width: auto; margin: 0; background: none; border: none; padding: 0;">
-        <button id="btn-create-post" class="btn-action" style="width: auto; padding: 10px 25px; margin-top: 0;">POST</button>
-      </div>
-    </div>
-    <div id="feed-container" class="feed-container"></div>
-  </div>
-
-  <!-- VISTA DE PERFIL DE USUARIO (#user/nombre) -->
-  <div id="section-profile" class="view-section">
-    <div class="profile-box" id="profile-content-box"></div>
   </div>
 </main>
 
 <script>
-const EMAIL_PUBLIC_KEY = "yUvWoq451Lb_sn__9";
-const EMAIL_SERVICE = "service_oyw7kda";
-const TEMPLATE_REGISTER = "template_ec1vtkq";
-const TEMPLATE_RECOVERY = "template_5ym9ghb";
-const VERIFIED_BADGE_HTML = '<img src="Creator.png" class="verified-badge" alt="Verified">';
+// ==========================================
+// CONFIGURACIÓN DE TUS DATOS DE PAGO
+// ==========================================
+const CREATOR_PAYMENTS = {
+  zinli: "tu-correo-o-telefono-zinli",
+  paypal: "tu-correo-paypal@example.com",
+  gpay: "tu-id-googlepay",
+  card: "Tu número de tarjeta o enlace de pago"
+};
 
-emailjs.init(EMAIL_PUBLIC_KEY);
-
-let generatedOtp = "";
-let recoveryOtp = "";
-let pendingUserData = {};
-let recoveryEmailTarget = "";
-let currentUser = null;
-
-// Caché en memoria sincronizada con Firestore
-let cachedUsers = [];
-let cachedPosts = [];
-let cachedGames = [];
-let cachedPaymentSettings = { paypal: "", gpay: "", card: "" };
-
-const viewLogin = document.getElementById("view-login");
-const viewReg = document.getElementById("view-reg");
-const viewPassword = document.getElementById("view-password");
-const viewRecovery = document.getElementById("view-recovery");
-const authContainer = document.getElementById("auth-container");
-const mainContainer = document.getElementById("main-container");
-
-// Inicializar base de datos Firestore y Cargar Datos
-window.addEventListener('firebase-ready', async () => {
-  await syncDataFromFirestore();
-  // Verificar sesión activa
-  const activeSession = localStorage.getItem("ActiveSession");
-  if (activeSession) {
-    const found = cachedUsers.find(u => u.username === activeSession);
-    if (found && !found.banned) loginSuccess(found);
+// ==========================================
+// CATÁLOGO DE JUEGOS
+// ==========================================
+const CODE_GAMES_CATALOG = [
+  {
+    id: "shadow-hope",
+    title: "Shadow Hope",
+    logo: "Shadow.png",
+    msUrl: "https://apps.microsoft.com/detail/tu-enlace-shadow-hope", // Si dejas esto vacío "", el botón de Microsoft Store no aparecerá
+    downloadUrl: "https://github.com/StrangeWorldSD/Shadow-Hope/releases/download/Shadow_Hope/Shadow.Hope.exe",
+    status: "available", // "available" o "coming"
+    platform: "PC",
+    pricing: "free",     // Gratis por los momentos
+    price: ""
+  },
+  {
+    id: "shadow-hope-ii",
+    title: "Shadow Hope II",
+    logo: "Shadow II.png",
+    msUrl: "",
+    downloadUrl: "",
+    status: "coming",
+    platform: "PC",
+    pricing: "free",
+    price: ""
+  },
+  {
+    id: "shadow-hope-android",
+    title: "Shadow Hope (Android)",
+    logo: "Shadow.png",
+    msUrl: "",
+    downloadUrl: "",
+    status: "coming-android",
+    platform: "Android",
+    pricing: "free",
+    price: ""
   }
-});
+];
 
-async function syncDataFromFirestore() {
-  try {
-    const { db, collection, getDocs } = window.firebaseDB;
-    
-    // Cargar Usuarios
-    const usersSnap = await getDocs(collection(db, "users"));
-    cachedUsers = [];
-    usersSnap.forEach(docSnap => cachedUsers.push(docSnap.data()));
-    
-    // Cargar Posts
-    const postsSnap = await getDocs(collection(db, "posts"));
-    cachedPosts = [];
-    postsSnap.forEach(docSnap => cachedPosts.push(docSnap.data()));
-    cachedPosts.sort((a, b) => b.timestamp - a.timestamp);
-
-    // Cargar Juegos
-    const gamesSnap = await getDocs(collection(db, "games"));
-    cachedGames = [];
-    gamesSnap.forEach(docSnap => cachedGames.push(docSnap.data()));
-    if (cachedGames.length === 0) {
-      cachedGames = [{ 
-        id: "1", 
-        title: "Sub-Zero Frontier", 
-        downloadUrl: "https://github.com", 
-        msUrl: "https://apps.microsoft.com", 
-        status: "available", 
-        ageRating: "USK / Mayores de 12",
-        pricing: "free", 
-        price: "" 
-      }];
-    }
-
-    // Cargar Configuración de Pagos
-    const paymentsSnap = await getDocs(collection(db, "payments"));
-    paymentsSnap.forEach(docSnap => {
-      if (docSnap.id === "settings") cachedPaymentSettings = docSnap.data();
-    });
-
-  } catch (e) {
-    console.error("Error sincronizando con Firestore:", e);
-  }
+function loadPaymentLabels() {
+  document.getElementById("lbl-zinli").innerText = CREATOR_PAYMENTS.zinli;
+  document.getElementById("lbl-paypal").innerText = CREATOR_PAYMENTS.paypal;
+  document.getElementById("lbl-gpay").innerText = CREATOR_PAYMENTS.gpay;
+  document.getElementById("lbl-card").innerText = CREATOR_PAYMENTS.card;
 }
 
-document.getElementById("new-game-pricing").addEventListener("change", (e) => {
-  const priceInput = document.getElementById("new-game-price");
-  if (e.target.value === "paid") {
-    priceInput.style.display = "block";
-  } else {
-    priceInput.style.display = "none";
-    priceInput.value = "";
-  }
-});
-
-function getUsers() { return cachedUsers; }
-async function saveUserToFirestore(userObj) {
-  const { db, setDoc, doc } = window.firebaseDB;
-  await setDoc(doc(db, "users", userObj.username), userObj);
-  const idx = cachedUsers.findIndex(u => u.username === userObj.username);
-  if (idx > -1) cachedUsers[idx] = userObj;
-  else cachedUsers.push(userObj);
-}
-
-function getPosts() { return cachedPosts; }
-async function savePostToFirestore(postObj) {
-  const { db, setDoc, doc } = window.firebaseDB;
-  await setDoc(doc(db, "posts", postObj.id), postObj);
-  cachedPosts.unshift(postObj);
-}
-async function deletePostFromFirestore(postId) {
-  const { db, deleteDoc, doc } = window.firebaseDB;
-  await deleteDoc(doc(db, "posts", postId));
-  cachedPosts = cachedPosts.filter(p => p.id !== postId);
-}
-async function updatePostInFirestore(postObj) {
-  const { db, setDoc, doc } = window.firebaseDB;
-  await setDoc(doc(db, "posts", postObj.id), postObj);
-  const idx = cachedPosts.findIndex(p => p.id === postObj.id);
-  if (idx > -1) cachedPosts[idx] = postObj;
-}
-
-function getGames() { return cachedGames; }
-async function saveGameToFirestore(gameObj) {
-  const { db, setDoc, doc } = window.firebaseDB;
-  await setDoc(doc(db, "games", gameObj.id), gameObj);
-  cachedGames.push(gameObj);
-}
-async function deleteGameFromFirestore(gameId) {
-  const { db, deleteDoc, doc } = window.firebaseDB;
-  await deleteDoc(doc(db, "games", gameId));
-  cachedGames = cachedGames.filter(g => g.id !== gameId);
-}
-
-function getPaymentSettings() { return cachedPaymentSettings; }
-async function savePaymentSettingsToFirestore(settings) {
-  const { db, setDoc, doc } = window.firebaseDB;
-  await setDoc(doc(db, "payments", "settings"), settings);
-  cachedPaymentSettings = settings;
-}
-
-// Buscador de usuarios global
-window.handleUserSearch = function(query) {
-  const resultsBox = document.getElementById("global-user-results");
-  const q = query.trim().toLowerCase();
-  if (!q) {
-    resultsBox.classList.add("hidden");
-    resultsBox.innerHTML = "";
-    return;
-  }
-
-  const users = getUsers();
-  const filtered = users.filter(u => u.username.toLowerCase().includes(q));
-
-  if (filtered.length === 0) {
-    resultsBox.innerHTML = '<div style="padding:10px; color:#aaa; text-align:center;">No se encontraron usuarios</div>';
-    resultsBox.classList.remove("hidden");
-    return;
-  }
-
-  let html = "";
-  filtered.forEach(u => {
-    const isVerified = u.verified || u.username === "StrangeWorld";
-    const badge = isVerified ? VERIFIED_BADGE_HTML : "";
-    html += `
-      <div class="user-search-item" onclick="window.selectSearchedUser('${u.username}')">
-        <span><strong>${u.username}</strong> ${badge}</span>
-        <span style="font-size:0.8rem; color:var(--cyan);">Ver Perfil</span>
-      </div>
-    `;
-  });
-
-  resultsBox.innerHTML = html;
-  resultsBox.classList.remove("hidden");
-};
-
-window.selectSearchedUser = function(username) {
-  document.getElementById("global-user-search").value = "";
-  document.getElementById("global-user-results").classList.add("hidden");
-  window.openUserProfile(username);
-};
-
-// Funciones de despliegue para Admin
-window.toggleAddGamePanel = function() {
-  const panel = document.getElementById("strange-store-admin");
-  panel.classList.toggle("hidden");
-};
-
-window.togglePaymentPanel = function() {
-  const panel = document.getElementById("strange-payment-admin");
-  panel.classList.toggle("hidden");
-};
-
-// Navegación de Auth
-document.getElementById("go-to-reg").addEventListener("click", () => { viewLogin.classList.add("hidden"); viewReg.classList.remove("hidden"); });
-document.getElementById("go-to-login-from-reg").addEventListener("click", () => { viewReg.classList.add("hidden"); viewLogin.classList.remove("hidden"); });
-document.getElementById("go-to-recovery").addEventListener("click", () => { viewLogin.classList.add("hidden"); viewRecovery.classList.remove("hidden"); });
-document.getElementById("go-to-login-from-rec").addEventListener("click", () => { viewRecovery.classList.add("hidden"); viewLogin.classList.remove("hidden"); });
-
-window.goHome = function() {
-  history.pushState({}, "", window.location.pathname);
-  window.switchTab('store');
-};
-
-window.switchTab = function(tabName) {
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".view-section").forEach(s => s.classList.remove("active-view"));
-
-  if (tabName === 'store') {
-    document.querySelectorAll(".tab-btn")[0].classList.add("active");
-    document.getElementById("section-store").classList.add("active-view");
-    loadStore();
-  } else if (tabName === 'community') {
-    document.querySelectorAll(".tab-btn")[1].classList.add("active");
-    document.getElementById("section-community").classList.add("active-view");
-    loadFeed();
-  } else if (tabName === 'profile') {
-    document.getElementById("section-profile").classList.add("active-view");
-  }
-};
-
-document.getElementById("btn-login").addEventListener("click", () => {
-  const identifier = document.getElementById("login-user").value.trim();
-  const password = document.getElementById("login-pass").value;
-  if (!identifier || !password) { alert("Completa todos los campos."); return; }
-
-  const users = getUsers();
-  let foundUser = users.find(u => (u.username === identifier || u.email === identifier) && u.password === password);
-  if (!foundUser) { alert("Usuario o contraseña incorrectos."); return; }
-
-  if (foundUser.banned) {
-    alert("Tu cuenta ha sido baneada de Strange World.");
-    return;
-  }
-
-  loginSuccess(foundUser);
-});
-
-document.getElementById("btn-send-code").addEventListener("click", () => {
-  const username = document.getElementById("reg-user").value.trim();
-  const email = document.getElementById("reg-mail").value.trim();
-  const birth = document.getElementById("reg-birth").value;
-
-  if (!username || !email || !birth) { alert("Completa todos los campos."); return; }
-  const users = getUsers();
-  if (users.some(u => u.username === username)) { alert("El usuario ya existe."); return; }
-  if (users.some(u => u.email === email)) { alert("El correo ya está registrado."); return; }
-
-  generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-  pendingUserData = { username, email, birth };
-
-  document.getElementById("btn-send-code").innerText = "SENDING...";
-  emailjs.send(EMAIL_SERVICE, TEMPLATE_REGISTER, { email, to_email: email, to_name: username, verification_code: generatedOtp })
-    .then(() => {
-      alert("¡Código enviado al correo!");
-      document.getElementById("btn-send-code").classList.add("hidden");
-      document.getElementById("otp-container").classList.remove("hidden");
-    })
-    .catch(() => {
-      alert("Error al enviar el correo.");
-      document.getElementById("btn-send-code").innerText = "SEND CODE";
-    });
-});
-
-document.getElementById("btn-verify-code").addEventListener("click", () => {
-  if (document.getElementById("reg-code").value.trim() !== generatedOtp) { alert("Código incorrecto."); return; }
-  viewReg.classList.add("hidden");
-  viewPassword.classList.remove("hidden");
-});
-
-document.getElementById("btn-create-account").addEventListener("click", async () => {
-  const password = document.getElementById("reg-pass").value;
-  if (password.length < 6 || password !== document.getElementById("reg-pass-confirm").value) {
-    alert("Contraseña inválida o no coincide (mínimo 6 caracteres)."); return;
-  }
-
-  const isStrange = pendingUserData.username === "StrangeWorld";
-  const newUser = {
-    username: pendingUserData.username,
-    email: pendingUserData.email,
-    birth: pendingUserData.birth,
-    password: password,
-    verified: isStrange ? true : false,
-    avatar: isStrange ? "Icon.png" : "",
-    friends: [],
-    friendRequests: [],
-    banned: false
-  };
-
-  await saveUserToFirestore(newUser);
-  alert("¡Cuenta creada con éxito!");
-  viewPassword.classList.add("hidden");
-  viewLogin.classList.remove("hidden");
-});
-
-document.getElementById("btn-send-rec-code").addEventListener("click", () => {
-  const email = document.getElementById("rec-mail").value.trim();
-  if (!email) { alert("Ingresa tu correo."); return; }
-
-  const users = getUsers();
-  if (!users.some(u => u.email === email)) { alert("Este correo no está registrado."); return; }
-
-  recoveryEmailTarget = email;
-  recoveryOtp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  document.getElementById("btn-send-rec-code").innerText = "SENDING...";
-  emailjs.send(EMAIL_SERVICE, TEMPLATE_RECOVERY, { email: email, to_email: email, verification_code: recoveryOtp })
-    .then(() => {
-      alert("¡Código de recuperación enviado!");
-      document.getElementById("btn-send-rec-code").classList.add("hidden");
-      document.getElementById("rec-otp-container").classList.remove("hidden");
-    })
-    .catch(() => {
-      alert("Error al enviar correo de recuperación.");
-      document.getElementById("btn-send-rec-code").innerText = "SEND RECOVERY CODE";
-    });
-});
-
-document.getElementById("btn-verify-rec-code").addEventListener("click", async () => {
-  const code = document.getElementById("rec-code").value.trim();
-  const newPass = document.getElementById("rec-new-pass").value;
-
-  if (code !== recoveryOtp) { alert("Código incorrecto."); return; }
-  if (newPass.length < 6) { alert("La contraseña debe tener al menos 6 caracteres."); return; }
-
-  let users = getUsers();
-  let userObj = users.find(u => u.email === recoveryEmailTarget);
-  if (userObj) {
-    userObj.password = newPass;
-    await saveUserToFirestore(userObj);
-    alert("¡Contraseña actualizada con éxito!");
-    viewRecovery.classList.add("hidden");
-    viewLogin.classList.remove("hidden");
-  }
-});
-
-function loginSuccess(user) {
-  currentUser = user;
-  localStorage.setItem("ActiveSession", user.username);
-  authContainer.classList.add("hidden");
-  mainContainer.classList.remove("hidden");
-  
-  updateHeaderProfile();
-
-  if (user.username === "StrangeWorld") {
-    document.getElementById("strange-admin-controls").classList.remove("hidden");
-    loadPaymentInputs();
-  } else {
-    if (!user.verified) {
-      document.getElementById("btn-request-verification").classList.remove("hidden");
-    }
-  }
-
-  checkUrlRoute();
-  window.addEventListener('popstate', checkUrlRoute);
-}
-
-function updateHeaderProfile() {
-  let headerName = currentUser.username;
-  if (currentUser.verified || currentUser.username === "StrangeWorld") headerName += VERIFIED_BADGE_HTML;
-  document.getElementById("header-username").innerHTML = headerName;
-
-  let avatarImg = document.getElementById("avatar-img");
-  let avatarFallback = document.getElementById("avatar-fallback");
-  let activeAvatar = currentUser.username === "StrangeWorld" && !currentUser.avatar ? "Icon.png" : currentUser.avatar;
-
-  if (activeAvatar) {
-    avatarImg.src = activeAvatar;
-    avatarImg.classList.remove("hidden");
-    avatarFallback.classList.add("hidden");
-  } else {
-    avatarImg.classList.add("hidden");
-    avatarFallback.classList.remove("hidden");
-  }
-}
-
-document.getElementById("avatar-file-input").addEventListener("change", async function(e) {
-  if (e.target.files && e.target.files[0]) {
-    const file = e.target.files[0];
-    try {
-      const { storage, ref, uploadBytes, getDownloadURL } = window.firebaseStorage;
-      const storageRef = ref(storage, `avatars/${currentUser.username}_${Date.now()}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-      currentUser.avatar = downloadURL;
-      await saveUserToFirestore(currentUser);
-      updateHeaderProfile();
-      alert("¡Avatar actualizado con éxito mediante Firebase Storage!");
-    } catch (err) {
-      console.error(err);
-      alert("Error al subir imagen a Firebase Storage.");
-    }
-  }
-});
-
-document.getElementById("btn-logout").addEventListener("click", () => {
-  localStorage.removeItem("ActiveSession");
-  location.reload();
-});
-
-// Enrutador de URL para #user/nombre
-function checkUrlRoute() {
-  const hash = window.location.hash;
-  if (hash.startsWith("#user/")) {
-    const targetUsername = hash.replace("#user/", "");
-    loadUserProfile(targetUsername);
-  }
-}
-
-window.openMyProfile = function() {
-  history.pushState({}, "", `#user/${currentUser.username}`);
-  loadUserProfile(currentUser.username);
-};
-
-window.openUserProfile = function(username) {
-  history.pushState({}, "", `#user/${username}`);
-  loadUserProfile(username);
-};
-
-function loadUserProfile(username) {
-  const users = getUsers();
-  const profileUser = users.find(u => u.username === username);
-  const container = document.getElementById("profile-content-box");
-
-  if (!profileUser) {
-    container.innerHTML = `<h3 style="color:#ff4444;">Usuario no encontrado</h3><button class="action-btn" onclick="window.switchTab('store')">Volver a la Tienda</button>`;
-    window.switchTab('profile');
-    return;
-  }
-
-  const isSelf = currentUser.username === profileUser.username;
-  const isAdmin = currentUser.username === "StrangeWorld";
-  const isVerified = profileUser.verified || profileUser.username === "StrangeWorld";
-  const avatarSrc = profileUser.avatar || "";
-
-  let avatarHtml = avatarSrc ? `<img src="${avatarSrc}">` : `<span style="font-size:3rem; color:var(--cyan); font-family:'Lilita One';">${profileUser.username.charAt(0).toUpperCase()}</span>`;
-
-  // Calcular seguidores (amigos)
-  const followersCount = profileUser.friends ? profileUser.friends.length : 0;
-
-  // Botón de dar verificado exclusivo para StrangeWorld
-  let adminVerifySection = "";
-  if (isAdmin && !isSelf) {
-    const verifyText = profileUser.verified ? "Quitar Verificado ❌" : "Dar Verificado 🛡️";
-    adminVerifySection = `<div style="margin-top:15px;"><button class="action-btn cyan-button" onclick="window.toggleVerifyUser('${profileUser.username}')">${verifyText}</button></div>`;
-  }
-
-  let actionButtonsHtml = "";
-  if (!isSelf) {
-    const isFriend = profileUser.friends && profileUser.friends.includes(currentUser.username);
-    const hasSentRequest = profileUser.friendRequests && profileUser.friendRequests.includes(currentUser.username);
-
-    if (isFriend) {
-      actionButtonsHtml += `<button class="action-btn" style="background:#222; border-color:#00ff66; color:#00ff66;" disabled>Amigos / Seguidos 🤝</button>`;
-    } else if (hasSentRequest) {
-      actionButtonsHtml += `<button class="action-btn" style="background:#222; border-color:#ffcc00; color:#ffcc00;" disabled>Solicitud Enviada ⏳</button>`;
-    } else {
-      actionButtonsHtml += `<button class="action-btn cyan-button" onclick="window.sendFriendRequest('${profileUser.username}')">Añadir Amigo / Seguir ➕</button>`;
-    }
-  }
-
-  let adminBanSection = "";
-  if (isAdmin && !isSelf) {
-    const banText = profileUser.banned ? "Desbanear Usuario 🟢" : "Banear Usuario ⛔";
-    const banColor = profileUser.banned ? "#00ff66" : "#ff4444";
-    adminBanSection = `<div style="margin-top:15px;"><button class="action-btn" style="border-color:${banColor}; color:${banColor};" onclick="window.toggleBanUser('${profileUser.username}')">${banText}</button></div>`;
-  }
-
-  // Amigos visibles solo para el propio usuario o el admin
-  let friendsListSection = "";
-  if (isSelf || isAdmin) {
-    const friendsArr = profileUser.friends || [];
-    let friendsHtml = friendsArr.length > 0 ? friendsArr.map(f => `<span style="background:#111; padding:4px 10px; border-radius:6px; font-size:0.85rem; display:inline-block; margin:3px;">${f}</span>`).join('') : '<span style="color:#777; font-size:0.85rem;">Ningún amigo aún</span>';
-    friendsListSection = `
-      <div style="margin-top:20px; text-align:left; background:#111; padding:15px; border-radius:12px;">
-        <h4 style="color:var(--cyan); margin-bottom:8px;">Amigos (Privado / Visible para ti o Admin)</h4>
-        <div>${friendsHtml}</div>
-      </div>
-    `;
-  }
-
-  // Solicitudes de amistad recibidas si es el propio perfil
-  let friendRequestsSection = "";
-  if (isSelf && profileUser.friendRequests && profileUser.friendRequests.length > 0) {
-    let reqItems = "";
-    profileUser.friendRequests.forEach(reqName => {
-      reqItems += `
-        <div style="display:flex; justify-content:space-between; align-items:center; background:#111; padding:10px; border-radius:8px; margin-top:5px;">
-          <span><strong>${reqName}</strong> quiere ser tu amigo</span>
-          <div style="display:flex; gap:5px;">
-            <button class="action-btn" style="background:#00ff66; color:black; padding:4px 10px;" onclick="window.acceptFriendRequest('${reqName}')">Aceptar</button>
-            <button class="action-btn" style="background:#ff4444; color:white; padding:4px 10px;" onclick="window.rejectFriendRequest('${reqName}')">Rechazar</button>
-          </div>
-        </div>
-      `;
-    });
-    friendRequestsSection = `
-      <div style="margin-top:25px; text-align:left; background:#111; padding:15px; border-radius:12px;">
-        <h4 style="color:var(--cyan); margin-bottom:10px;">Solicitudes de Amistad Pendientes</h4>
-        ${reqItems}
-      </div>
-    `;
-  }
-
-  // Cargar publicaciones del usuario
-  const allPosts = getPosts();
-  const userPosts = allPosts.filter(p => p.author === profileUser.username);
-  let userPostsHtml = "";
-  userPosts.forEach(p => {
-    userPostsHtml += `
-      <div style="background:#111; padding:12px; border-radius:10px; margin-top:10px; text-align:left; border:1px solid #222;">
-        <p style="color:#ddd; font-size:0.9rem;">${p.text || '[Contenido Multimedia]'}</p>
-        <span style="color:#555; font-size:0.75rem;">${new Date(p.timestamp).toLocaleDateString()}</span>
-      </div>
-    `;
-  });
-
-  container.innerHTML = `
-    <div class="profile-avatar">${avatarHtml}</div>
-    <h2 style="color:var(--cyan); font-family:'Lilita One';">${profileUser.username} ${isVerified ? VERIFIED_BADGE_HTML : ''}</h2>
-    <p style="color:#aaa; font-size:0.9rem; margin-bottom:5px;">Correo: ${profileUser.email}</p>
-    <p style="color:var(--orange); font-weight:bold; font-size:1rem; margin-bottom:15px;">👥 Seguidores: ${followersCount}</p>
-    
-    <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-      ${actionButtonsHtml}
-    </div>
-    ${adminVerifySection}
-    ${adminBanSection}
-    ${friendsListSection}
-    ${friendRequestsSection}
-    
-    <div style="margin-top:25px; text-align:left; background:#0e0e0e; padding:15px; border-radius:12px; border:1px solid #333;">
-      <h4 style="color:var(--orange); margin-bottom:10px;">Publicaciones de ${profileUser.username}</h4>
-      ${userPostsHtml.length > 0 ? userPostsHtml : '<p style="color:#666; font-size:0.85rem;">No hay publicaciones.</p>'}
-    </div>
-
-    <div style="margin-top:20px;">
-      <button class="action-btn" style="background:#222; border-color:#444;" onclick="window.switchTab('store')">Volver a la Tienda</button>
-    </div>
-  `;
-
-  window.switchTab('profile');
-}
-
-// Dar/Quitar Verificado exclusivo de StrangeWorld
-window.toggleVerifyUser = async function(username) {
-  if (currentUser.username !== "StrangeWorld") return;
-  let users = getUsers();
-  let userObj = users.find(u => u.username === username);
-  if (!userObj) return;
-
-  userObj.verified = !userObj.verified;
-  await saveUserToFirestore(userObj);
-  alert(`El usuario ${username} ahora ${userObj.verified ? 'tiene' : 'no tiene'} el verificado.`);
-  loadUserProfile(username);
-};
-
-// Sistema de Amistades
-window.sendFriendRequest = async function(targetUsername) {
-  let users = getUsers();
-  let target = users.find(u => u.username === targetUsername);
-  if (!target) return;
-
-  if (!target.friendRequests) target.friendRequests = [];
-  if (target.friendRequests.includes(currentUser.username)) {
-    alert("Ya has enviado una solicitud a este usuario.");
-    return;
-  }
-
-  target.friendRequests.push(currentUser.username);
-  await saveUserToFirestore(target);
-  alert(`Solicitud de amistad enviada a ${targetUsername}.`);
-  loadUserProfile(targetUsername);
-};
-
-window.acceptFriendRequest = async function(requesterName) {
-  let users = getUsers();
-  let myUserIndex = users.findIndex(u => u.username === currentUser.username);
-  let requesterIndex = users.findIndex(u => u.username === requesterName);
-
-  if (myUserIndex === -1 || requesterIndex === -1) return;
-
-  if (!users[myUserIndex].friends) users[myUserIndex].friends = [];
-  if (!users[requesterIndex].friends) users[requesterIndex].friends = [];
-
-  users[myUserIndex].friends.push(requesterName);
-  users[requesterIndex].friends.push(currentUser.username);
-
-  users[myUserIndex].friendRequests = users[myUserIndex].friendRequests.filter(name => name !== requesterName);
-
-  await saveUserToFirestore(users[myUserIndex]);
-  await saveUserToFirestore(users[requesterIndex]);
-
-  currentUser = users[myUserIndex];
-  alert(`¡Ahora eres amigo de ${requesterName}!`);
-  loadUserProfile(currentUser.username);
-};
-
-window.rejectFriendRequest = async function(requesterName) {
-  let users = getUsers();
-  let myUserIndex = users.findIndex(u => u.username === currentUser.username);
-  if (myUserIndex === -1) return;
-
-  users[myUserIndex].friendRequests = users[myUserIndex].friendRequests.filter(name => name !== requesterName);
-  await saveUserToFirestore(users[myUserIndex]);
-  currentUser = users[myUserIndex];
-  alert("Solicitud rechazada.");
-  loadUserProfile(currentUser.username);
-};
-
-// Panel de Administración para Banear
-window.toggleBanUser = async function(username) {
-  if (currentUser.username !== "StrangeWorld") return;
-  let users = getUsers();
-  let userObj = users.find(u => u.username === username);
-  if (!userObj) return;
-
-  userObj.banned = !userObj.banned;
-  await saveUserToFirestore(userObj);
-  alert(`El usuario ${username} ha sido ${userObj.banned ? 'baneado' : 'desbaneado'}.`);
-  loadUserProfile(username);
-};
-
-// Formulario de Solicitud de Verificación
-window.openVerificationModal = function() {
-  const reason = prompt("Describe por qué deberías recibir la verificación oficial de creador en Strange World:");
-  if (reason && reason.trim() !== "") {
-    alert("¡Tu solicitud de verificación ha sido enviada al administrador (StrangeWorld) con éxito!");
-    document.getElementById("btn-request-verification").classList.add("hidden");
-  }
-};
-
-function loadPaymentInputs() {
-  const p = getPaymentSettings();
-  document.getElementById("pay-paypal").value = p.paypal || "";
-  document.getElementById("pay-gpay").value = p.gpay || "";
-  document.getElementById("pay-card").value = p.card || "";
-}
-
-window.savePaymentMethods = async function() {
-  const paypal = document.getElementById("pay-paypal").value.trim();
-  const gpay = document.getElementById("pay-gpay").value.trim();
-  const card = document.getElementById("pay-card").value.trim();
-
-  await savePaymentSettingsToFirestore({ paypal, gpay, card });
-  alert("¡Tus métodos de pago han sido guardados de forma segura en Firebase!");
-};
-
-// --- TIENDA ---
 function loadStore() {
-  const games = getGames();
   const grid = document.getElementById("store-games-grid");
   grid.innerHTML = "";
 
-  if (games.length === 0) {
-    grid.innerHTML = '<p style="color:#555; text-align:center; grid-column:1/-1;">No hay juegos disponibles en la tienda.</p>';
-    return;
-  }
-
-  games.forEach(game => {
-    let deleteBtn = "";
-    if (currentUser.username === "StrangeWorld") {
-      deleteBtn = `<button class="action-btn" style="border-color:#ff4444; color:#ff4444; width:100%; margin-top:5px;" onclick="window.deleteGame('${game.id}')">Eliminar Juego</button>`;
-    }
-
-    let statusBadge = game.status === "coming" 
-      ? '<span style="color:#ffcc00; font-weight:bold; font-size:0.9rem;">⏳ Coming Soon</span>' 
-      : '<span style="color:#00e5ff; font-weight:bold; font-size:0.9rem;">🟢 Available Now</span>';
-
-    let ageBadge = `<span style="color:#aaa; font-size:0.85rem;">🛡️ Clasificación: <strong>${game.ageRating || 'USK / Mayores de 12'}</strong></span>`;
-
-    let pricingInfo = game.pricing === "paid" 
-      ? `<span style="color:#ff4444; font-weight:bold; font-size:0.9rem;">💰 De Pago ${game.price ? '(' + game.price + ')' : ''}</span>` 
-      : '<span style="color:#00ff66; font-weight:bold; font-size:0.9rem;">🎁 Gratis (Free)</span>';
-
+  CODE_GAMES_CATALOG.forEach(game => {
+    let statusBadge = '';
     let buttonsHtml = '';
+
     if (game.status === "coming") {
+      statusBadge = '<span style="color:#ffcc00; font-weight:bold; font-size:0.9rem;">⏳ Coming Soon (PC)</span>';
       buttonsHtml += `<button class="download-btn" style="background:#444; cursor:not-allowed;" disabled>Próximamente</button>`;
+    } else if (game.status === "coming-android") {
+      statusBadge = '<span style="color:#ffcc00; font-weight:bold; font-size:0.9rem;">⏳ Próximamente para Android</span>';
+      buttonsHtml += `<button class="download-btn" style="background:#444; cursor:not-allowed;" disabled>Próximamente Android</button>`;
     } else {
+      statusBadge = `<span style="color:#00e5ff; font-weight:bold; font-size:0.9rem;">🟢 Disponible (${game.platform})</span>`;
+      
+      // Botón de descarga normal (GitHub / directo)
       if (game.downloadUrl) {
-        buttonsHtml += `<a class="download-btn" href="${game.downloadUrl}" target="_blank">Descargar Directo</a>`;
+        buttonsHtml += `<a class="download-btn" href="${game.downloadUrl}" target="_blank">Descargar para PC</a>`;
+      }
+
+      // Condición estricta: Mostrar botón de Microsoft Store SOLO si el enlace existe y no está vacío
+      if (game.msUrl && game.msUrl.trim() !== "") {
+        buttonsHtml += `<a class="download-btn ms-btn" href="${game.msUrl}" target="_blank">Microsoft Store</a>`;
       }
     }
 
-    if (game.msUrl) {
-      buttonsHtml += `<a class="download-btn ms-btn" href="${game.msUrl}" target="_blank">Microsoft Store</a>`;
-    }
-
-    if (game.pricing === "paid" && game.status !== "coming") {
-      buttonsHtml += `<button class="action-btn cyan-button" style="margin-top:5px;" onclick="window.buyGame('${game.title}')">Comprar Juego</button>`;
-    }
+    let pricingInfo = game.pricing === "paid" 
+      ? `<span style="color:#ff4444; font-weight:bold; font-size:0.9rem;">💰 De Pago</span>` 
+      : '<span style="color:#00ff66; font-weight:bold; font-size:0.9rem;">🎁 Gratis (Free)</span>';
 
     grid.innerHTML += `
       <div class="game-card">
+        <img src="${game.logo}" class="game-logo" alt="${game.title}">
         <h3>${game.title}</h3>
         <div style="display:flex; flex-direction:column; gap:6px; background:#111; padding:10px; border-radius:10px; text-align:left;">
           <div>${statusBadge}</div>
-          <div>${ageBadge}</div>
           <div>${pricingInfo}</div>
         </div>
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:5px;">
           ${buttonsHtml}
         </div>
-        ${deleteBtn}
       </div>
     `;
   });
 }
 
-window.addGame = async function() {
-  if (currentUser.username !== "StrangeWorld") return;
-  const title = document.getElementById("new-game-title").value.trim();
-  const downloadUrl = document.getElementById("new-game-url").value.trim();
-  const msUrl = document.getElementById("new-game-ms-url").value.trim();
-  const status = document.getElementById("new-game-status").value;
-  const ageRating = document.getElementById("new-game-age").value;
-  const pricing = document.getElementById("new-game-pricing").value;
-  const price = document.getElementById("new-game-price").value.trim();
-
-  if (!title) { alert("Ingresa el título del juego."); return; }
-
-  const newGame = { 
-    id: Date.now().toString(), 
-    title, 
-    downloadUrl, 
-    msUrl, 
-    status, 
-    ageRating,
-    pricing, 
-    price 
-  };
-  
-  await saveGameToFirestore(newGame);
-
-  document.getElementById("new-game-title").value = "";
-  document.getElementById("new-game-url").value = "";
-  document.getElementById("new-game-ms-url").value = "";
-  document.getElementById("new-game-price").value = "";
-  document.getElementById("strange-store-admin").classList.add("hidden");
+// Inicializar tienda al cargar la página
+window.onload = function() {
+  loadPaymentLabels();
   loadStore();
-  alert("Juego añadido a la tienda con éxito en Firebase.");
-};
-
-window.deleteGame = async function(id) {
-  if (currentUser.username !== "StrangeWorld") return;
-  await deleteGameFromFirestore(id);
-  loadStore();
-};
-
-window.buyGame = function(title) {
-  const p = getPaymentSettings();
-  if (!p.paypal && !p.gpay && !p.card) {
-    alert("El creador aún no ha configurado sus métodos de cobro. Inténtalo más tarde.");
-    return;
-  }
-  
-  let msg = `Vas a adquirir "${title}". Métodos de pago disponibles del creador:\n`;
-  if (p.paypal) msg += `\n• PayPal: ${p.paypal}`;
-  if (p.gpay) msg += `\n• Google Pay: ${p.gpay}`;
-  if (p.card) msg += `\n• Tarjeta / Pasarela: ${p.card}`;
-  
-  alert(msg + "\n\nContacta con el creador o efectúa el pago mediante los datos indicados.");
-};
-
-// --- COMUNIDAD ---
-document.getElementById("btn-create-post").addEventListener("click", async () => {
-  const text = document.getElementById("post-text").value.trim();
-  const fileInput = document.getElementById("post-media-file");
-
-  if (!text && fileInput.files.length === 0) { alert("Escribe algo o añade un archivo."); return; }
-
-  const savePostWithMedia = async (mediaUrl, mediaType) => {
-    const newPost = {
-      id: Date.now().toString(),
-      author: currentUser.username,
-      text: text,
-      mediaUrl: mediaUrl || "",
-      mediaType: mediaType || "",
-      likes: [],
-      comments: [],
-      timestamp: Date.now()
-    };
-    await savePostToFirestore(newPost);
-    document.getElementById("post-text").value = "";
-    fileInput.value = "";
-    loadFeed();
-  };
-
-  if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
-    try {
-      const { storage, ref, uploadBytes, getDownloadURL } = window.firebaseStorage;
-      const storageRef = ref(storage, `posts/${currentUser.username}_${Date.now()}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      const mediaType = file.type.startsWith('video') ? 'video' : 'image';
-      await savePostWithMedia(downloadURL, mediaType);
-    } catch (err) {
-      console.error(err);
-      alert("Error al subir archivo multimedia a Firebase Storage.");
-    }
-  } else {
-    await savePostWithMedia(null, null);
-  }
-});
-
-function loadFeed() {
-  const posts = getPosts();
-  const users = getUsers();
-  const container = document.getElementById("feed-container");
-  container.innerHTML = "";
-
-  if (posts.length === 0) {
-    container.innerHTML = '<p style="color:#555; text-align:center;">No hay publicaciones aún.</p>';
-    return;
-  }
-
-  posts.forEach(post => {
-    const authorData = users.find(u => u.username === post.author);
-    const isVerified = authorData?.verified || post.author === "StrangeWorld";
-    const badge = isVerified ? VERIFIED_BADGE_HTML : "";
-    const mediaHtml = post.mediaUrl ? (post.mediaType === 'video' ? `<video src="${post.mediaUrl}" controls class="post-media"></video>` : `<img src="${post.mediaUrl}" class="post-media">`) : "";
-    
-    const hasLiked = post.likes.includes(currentUser.username);
-
-    let commentsHtml = '';
-    post.comments.forEach(c => {
-      commentsHtml += `<div class="comment-item"><strong style="cursor:pointer;" onclick="window.openUserProfile('${c.author}')">${c.author}:</strong> ${c.text}</div>`;
-    });
-
-    let adminDeletePost = "";
-    if (currentUser.username === "StrangeWorld") {
-      adminDeletePost = `<button class="action-btn" style="border-color:#ff4444; color:#ff4444; margin-left:auto;" onclick="window.deletePost('${post.id}')">Eliminar Post</button>`;
-    }
-
-    container.innerHTML += `
-      <div class="post-card">
-        <div class="post-header">
-          <div><strong style="cursor:pointer;" onclick="window.openUserProfile('${post.author}')">${post.author}</strong> ${badge}</div>
-          <span style="color:#555; font-size:0.8rem;">${new Date(post.timestamp).toLocaleDateString()}</span>
-        </div>
-        ${post.text ? `<div style="color:#ddd; margin-bottom:10px;">${post.text}</div>` : ""}
-        ${mediaHtml}
-        <div class="post-actions">
-          <button class="action-btn" onclick="window.toggleLike('${post.id}')">${hasLiked ? '❤️' : '🤍'} (${post.likes.length})</button>
-          ${adminDeletePost}
-        </div>
-        <div class="comments-section">
-          <div id="comments-list-${post.id}">${commentsHtml}</div>
-          <div style="display:flex; gap:10px; margin-top:10px;">
-            <input id="comment-input-${post.id}" placeholder="Escribe un comentario..." style="margin:0; padding:8px 12px; font-size:0.9rem;">
-            <button class="action-btn" onclick="window.addComment('${post.id}')">Comentar</button>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-}
-
-window.toggleLike = async function(postId) {
-  let posts = getPosts();
-  let post = posts.find(p => p.id === postId);
-  if (!post) return;
-
-  const index = post.likes.indexOf(currentUser.username);
-  if (index > -1) post.likes.splice(index, 1);
-  else post.likes.push(currentUser.username);
-
-  await updatePostInFirestore(post);
-  loadFeed();
-};
-
-window.addComment = async function(postId) {
-  const input = document.getElementById(`comment-input-${postId}`);
-  const text = input.value.trim();
-  if (!text) return;
-
-  let posts = getPosts();
-  let post = posts.find(p => p.id === postId);
-  if (!post) return;
-
-  post.comments.push({ author: currentUser.username, text: text, timestamp: Date.now() });
-  await updatePostInFirestore(post);
-  loadFeed();
-};
-
-window.deletePost = async function(postId) {
-  if (currentUser.username !== "StrangeWorld") return;
-  await deletePostFromFirestore(postId);
-  loadFeed();
 };
 </script>
 </body>
