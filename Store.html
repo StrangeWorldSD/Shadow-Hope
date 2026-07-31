@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,26 +9,39 @@
 <style>
 :root { --orange: #ff4500; --cyan: #00e5ff; --dark: #020202; }
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rubik', sans-serif; }
-body { background: var(--dark); color: white; min-height: 100vh; padding: 20px; }
-.hidden { display: none !important; }
+body { background: var(--dark); color: white; min-height: 100vh; padding: 15px; overflow-x: hidden; }
 
-#main-container { max-width: 900px; margin: 0 auto; }
+#main-container { width: 100%; max-width: 950px; margin: 0 auto; }
 header {
   display: flex; justify-content: space-between; align-items: center;
-  border-bottom: 4px solid var(--orange); padding-bottom: 20px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+  border-bottom: 4px solid var(--orange); padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
 }
-header h1 { font-family: 'Lilita One'; font-size: 2.5rem; color: var(--orange); }
+header h1 { font-family: 'Lilita One'; font-size: clamp(1.8rem, 5vw, 2.5rem); color: var(--orange); }
 
-/* Tienda */
-.store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
-.game-card { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; padding: 25px; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.device-detect-bar {
+  background: #111; border: 1px solid #333; padding: 12px 15px; border-radius: 12px;
+  margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+}
+.device-detect-bar span { color: var(--cyan); font-weight: bold; }
+
+/* Tienda Responsiva por completo */
+.store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; width: 100%; }
+.game-card { background: #0a0a0a; border: 1px solid #222; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: center; width: 100%; }
 .game-logo { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; border: 1px solid #333; background: #111; margin-bottom: 5px; }
-.game-card h3 { font-family: 'Lilita One'; font-size: 1.5rem; color: var(--cyan); }
-.download-btn { display: inline-block; width: 100%; padding: 12px; background: var(--orange); color: white; text-decoration: none; border-radius: 10px; font-family: 'Lilita One'; font-size: 1.1rem; text-align: center; }
+.game-card h3 { font-family: 'Lilita One'; font-size: 1.5rem; color: var(--cyan); word-break: break-word; }
+.download-btn { display: inline-block; width: 100%; padding: 12px; background: var(--orange); color: white; text-decoration: none; border-radius: 10px; font-family: 'Lilita One'; font-size: 1.1rem; text-align: center; word-break: break-word; }
+.download-btn:hover { background: #ff5722; }
 .ms-btn { background: #0078d4; }
-.action-btn { background: none; border: 1px solid #444; color: white; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Lilita One'; font-size: 1.1rem; }
-.action-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-.payment-methods-box { background: #0a0a0a; border: 1px solid var(--cyan); padding: 20px; border-radius: 15px; margin-bottom: 25px; text-align: left; }
+.ms-btn:hover { background: #1084e3; }
+.linux-btn { background: #2e7d32; }
+.linux-btn:hover { background: #388e3c; }
+
+@media (max-width: 480px) {
+  body { padding: 10px; }
+  .game-card { padding: 15px; }
+  header h1 { font-size: 2rem; }
+}
 </style>
 </head>
 <body>
@@ -38,118 +51,151 @@ header h1 { font-family: 'Lilita One'; font-size: 2.5rem; color: var(--orange); 
     <h1>STRANGE WORLD</h1>
   </header>
 
-  <div id="section-store">
-    <!-- Métodos de pago del creador -->
-    <div class="payment-methods-box">
-      <h3 style="color:var(--cyan); font-family:'Lilita One'; margin-bottom:10px;">Métodos de Pago del Creador</h3>
-      <p style="color:#aaa; font-size:0.9rem; margin-bottom:10px;">Realiza tu pago mediante las siguientes opciones:</p>
-      <ul style="color:#ddd; padding-left:20px; font-size:0.9rem; display:flex; flex-direction:column; gap:6px;">
-        <li><strong>Zinli:</strong> <span id="lbl-zinli">tucuenta@zinli (Modificar en código)</span></li>
-        <li><strong>PayPal:</strong> <span id="lbl-paypal">tucorreo@paypal.com (Modificar en código)</span></li>
-        <li><strong>Google Pay:</strong> <span id="lbl-gpay">tucuenta@gpay (Modificar en código)</span></li>
-        <li><strong>Tarjeta VISA:</strong> <span id="lbl-card">Datos de tarjeta / Enlace directo</span></li>
-      </ul>
-    </div>
+  <div class="device-detect-bar">
+    <div>Detected OS: <span id="detected-device-name">Analyzing...</span></div>
+    <div style="font-size: 0.8rem; color: #aaa;">Content tailored to your platform.</div>
+  </div>
 
-    <!-- Catálogo de Juegos -->
+  <div id="section-store">
     <div id="store-games-grid" class="store-grid"></div>
   </div>
 </main>
 
 <script>
-// ==========================================
-// CONFIGURACIÓN DE TUS DATOS DE PAGO
-// ==========================================
-const CREATOR_PAYMENTS = {
-  zinli: "tu-correo-o-telefono-zinli",
-  paypal: "tu-correo-paypal@example.com",
-  gpay: "tu-id-googlepay",
-  card: "Tu número de tarjeta o enlace de pago"
-};
+function detectUserOS() {
+  const ua = navigator.userAgent.toLowerCase();
+  if (/iphone|ipad|ipod/.test(ua)) return "ios";       
+  if (/android/.test(ua)) return "android";           
+  if (/linux/.test(ua) && !/android/.test(ua)) return "linux"; 
+  if (/win/.test(ua)) return "windows";               
+  if (/mac/.test(ua)) return "mac";                   
+  return "windows";
+}
 
-// ==========================================
-// CATÁLOGO DE JUEGOS
-// ==========================================
 const CODE_GAMES_CATALOG = [
   {
     id: "shadow-hope",
     title: "Shadow Hope",
     logo: "Shadow.png",
-    msUrl: "https://apps.microsoft.com/detail/tu-enlace-shadow-hope", // Si dejas esto vacío "", el botón de Microsoft Store no aparecerá
-    downloadUrl: "https://github.com/StrangeWorldSD/Shadow-Hope/releases/download/Shadow_Hope/Shadow.Hope.exe",
-    status: "available", // "available" o "coming"
-    platform: "PC",
-    pricing: "free",     // Gratis por los momentos
-    price: ""
+    status: "available",
+    pricing: "free",
+    osType: "pc", 
+    pc: {
+      exe: "https://github.com/StrangeWorldSD/Shadow-Hope/releases/download/Shadow_Hope/Shadow.Hope.exe",
+      msi: "",
+      msStore: ""
+    },
+    linux: {
+      download: "https://github.com/StrangeWorldSD/Shadow-Hope/releases/download/Shadow_Hope/Shadow.Hope.linux.tar.gz"
+    }
   },
   {
     id: "shadow-hope-ii",
     title: "Shadow Hope II",
     logo: "Shadow II.png",
-    msUrl: "",
-    downloadUrl: "",
     status: "coming",
-    platform: "PC",
-    pricing: "free",
-    price: ""
+    pricing: "paid",
+    osType: "pc", 
+    pc: { exe: "", msi: "", msStore: "" },
+    linux: { download: "" }
   },
   {
     id: "shadow-hope-android",
     title: "Shadow Hope (Android)",
     logo: "Shadow.png",
-    msUrl: "",
-    downloadUrl: "",
-    status: "coming-android",
-    platform: "Android",
+    status: "available",
     pricing: "free",
-    price: ""
+    osType: "android", 
+    android: {
+      download: "" 
+    }
+  },
+  {
+    id: "shadow-hope-ios",
+    title: "Shadow Hope (iOS)",
+    logo: "Shadow.png",
+    status: "coming-ios",
+    pricing: "free",
+    osType: "ios", 
+    ios: {
+      download: ""
+    }
   }
 ];
-
-function loadPaymentLabels() {
-  document.getElementById("lbl-zinli").innerText = CREATOR_PAYMENTS.zinli;
-  document.getElementById("lbl-paypal").innerText = CREATOR_PAYMENTS.paypal;
-  document.getElementById("lbl-gpay").innerText = CREATOR_PAYMENTS.gpay;
-  document.getElementById("lbl-card").innerText = CREATOR_PAYMENTS.card;
-}
 
 function loadStore() {
   const grid = document.getElementById("store-games-grid");
   grid.innerHTML = "";
 
+  const userOS = detectUserOS();
+  const deviceSpan = document.getElementById("detected-device-name");
+  
+  if (userOS === "ios") {
+    deviceSpan.innerText = "iOS (iPhone / iPad)";
+  } else if (userOS === "android") {
+    deviceSpan.innerText = "Android";
+  } else if (userOS === "linux") {
+    deviceSpan.innerText = "Canaima / Linux";
+  } else {
+    deviceSpan.innerText = "Windows / PC";
+  }
+
   CODE_GAMES_CATALOG.forEach(game => {
+    if (game.osType === "pc" && (userOS === "android" || userOS === "ios")) return;
+    if (game.osType === "android" && userOS !== "android") return;
+    if (game.osType === "ios" && userOS !== "ios") return;
+
     let statusBadge = '';
     let buttonsHtml = '';
 
-    if (game.status === "coming") {
-      statusBadge = '<span style="color:#ffcc00; font-weight:bold; font-size:0.9rem;">⏳ Coming Soon (PC)</span>';
-      buttonsHtml += `<button class="download-btn" style="background:#444; cursor:not-allowed;" disabled>Próximamente</button>`;
-    } else if (game.status === "coming-android") {
-      statusBadge = '<span style="color:#ffcc00; font-weight:bold; font-size:0.9rem;">⏳ Próximamente para Android</span>';
-      buttonsHtml += `<button class="download-btn" style="background:#444; cursor:not-allowed;" disabled>Próximamente Android</button>`;
-    } else {
-      statusBadge = `<span style="color:#00e5ff; font-weight:bold; font-size:0.9rem;">🟢 Disponible (${game.platform})</span>`;
-      
-      // Botón de descarga normal (GitHub / directo)
-      if (game.downloadUrl) {
-        buttonsHtml += `<a class="download-btn" href="${game.downloadUrl}" target="_blank">Descargar para PC</a>`;
+    if (game.osType === "ios") {
+      statusBadge = '<span style="color:#a688ff; font-weight:bold; font-size:0.9rem;">🍏 Exclusive for iOS</span>';
+      buttonsHtml += `<button class="download-btn" style="background:#333; cursor:not-allowed;" disabled>Coming Soon for iOS</button>`;
+    }
+    else if (game.osType === "android") {
+      statusBadge = '<span style="color:#00ff66; font-weight:bold; font-size:0.9rem;">🤖 Available for Android</span>';
+      if (game.android.download && game.android.download.trim() !== "") {
+        buttonsHtml += `<a class="download-btn" href="${game.android.download}" target="_blank">Download APK</a>`;
+      } else {
+        buttonsHtml += `<button class="download-btn" style="background:#333; cursor:not-allowed;" disabled>APK Coming Soon</button>`;
       }
-
-      // Condición estricta: Mostrar botón de Microsoft Store SOLO si el enlace existe y no está vacío
-      if (game.msUrl && game.msUrl.trim() !== "") {
-        buttonsHtml += `<a class="download-btn ms-btn" href="${game.msUrl}" target="_blank">Microsoft Store</a>`;
+    } 
+    else if (game.status === "coming") {
+      statusBadge = '<span style="color:#ffcc00; font-weight:bold; font-size:0.9rem;">⏳ Coming Soon (PC)</span>';
+      buttonsHtml += `<button class="download-btn" style="background:#333; cursor:not-allowed;" disabled>Coming Soon</button>`;
+    } 
+    else {
+      if (userOS === "linux") {
+        statusBadge = '<span style="color:#00e5ff; font-weight:bold; font-size:0.9rem;">🟢 Available for Canaima / Linux</span>';
+        if (game.linux.download && game.linux.download.trim() !== "") {
+          buttonsHtml += `<a class="download-btn linux-btn" href="${game.linux.download}" target="_blank">Download (.tar.gz / Linux)</a>`;
+        } else {
+          buttonsHtml += `<button class="download-btn" style="background:#333; cursor:not-allowed;" disabled>Coming Soon for Linux</button>`;
+        }
+      } else {
+        statusBadge = '<span style="color:#00e5ff; font-weight:bold; font-size:0.9rem;">🟢 Available for PC (Windows)</span>';
+        
+        if (game.pc.exe && game.pc.exe.trim() !== "") {
+          buttonsHtml += `<a class="download-btn" href="${game.pc.exe}" target="_blank">Download Installer (.exe)</a>`;
+        }
+        if (game.pc.msi && game.pc.msi.trim() !== "") {
+          buttonsHtml += `<a class="download-btn" style="background:#43a047;" href="${game.pc.msi}" target="_blank">Download Package (.msi)</a>`;
+        }
+        if (game.pc.msStore && game.pc.msStore.trim() !== "") {
+          buttonsHtml += `<a class="download-btn ms-btn" href="${game.pc.msStore}" target="_blank">Microsoft Store</a>`;
+        }
       }
     }
 
     let pricingInfo = game.pricing === "paid" 
-      ? `<span style="color:#ff4444; font-weight:bold; font-size:0.9rem;">💰 De Pago</span>` 
-      : '<span style="color:#00ff66; font-weight:bold; font-size:0.9rem;">🎁 Gratis (Free)</span>';
+      ? `<span style="color:#ff4444; font-weight:bold; font-size:0.9rem;">Paid</span>` 
+      : '<span style="color:#00ff66; font-weight:bold; font-size:0.9rem;">Free</span>';
 
     grid.innerHTML += `
       <div class="game-card">
         <img src="${game.logo}" class="game-logo" alt="${game.title}">
         <h3>${game.title}</h3>
-        <div style="display:flex; flex-direction:column; gap:6px; background:#111; padding:10px; border-radius:10px; text-align:left;">
+        <div style="display:flex; flex-direction:column; gap:6px; background:#121212; padding:12px; border-radius:12px; text-align:left;">
           <div>${statusBadge}</div>
           <div>${pricingInfo}</div>
         </div>
@@ -161,9 +207,7 @@ function loadStore() {
   });
 }
 
-// Inicializar tienda al cargar la página
 window.onload = function() {
-  loadPaymentLabels();
   loadStore();
 };
 </script>
